@@ -6,6 +6,6 @@ export default class Boid {
 
 	constructor(x: number, y: number) {
 		this.position = new Vector2(x, y);
-		this.velocity = new Vector2(1, 0);
+		this.velocity = new Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1);
 	}
 }

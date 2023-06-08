@@ -1,6 +1,8 @@
 import Store from "./Store";
 import Boid from "./Boid";
 
+enum MouseButton { Primary, Middle, Secondary };
+
 export default class Simulation extends Store {
 	boids: Boid[] = [];
 
@@ -11,6 +13,25 @@ export default class Simulation extends Store {
 			const offset = i * 8;
 			this.boids.push(new Boid(offset, offset));
 		}
+	}
+
+	onClick(x: number, y: number, button: MouseButton) {
+		({
+			[MouseButton.Primary]: () => {
+				this.boids.push(new Boid(x, y));
+			},
+			[MouseButton.Secondary]: () => {
+				for (let i = 0; i < 10; i++) {
+					this.boids.push(new Boid(x, y));
+				}
+			},
+		}[button]?.());
+		this.notify();
+	}
+
+	reset() {
+		this.boids = [];
+		this.notify();
 	}
 
 	tick() {
