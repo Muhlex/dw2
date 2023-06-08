@@ -12,8 +12,7 @@ export default class Vector2 {
 	}
 
 	get angle() {
-		const angle = Math.atan2(-this.y, -this.x) + Math.PI;
-		return angle;
+		return Math.atan2(this.y, this.x);
 	}
 
 	get lengthSq() {
@@ -24,7 +23,7 @@ export default class Vector2 {
 		return Math.sqrt(this.lengthSq);
 	}
 
-	clone() {
+	copy() {
 		return new Vector2(this.x, this.y);
 	}
 
@@ -68,6 +67,15 @@ export default class Vector2 {
 
 	normalize() {
 		return this.divide(this.length || 1);
+	}
+
+	distanceSq(vector: Vector2) {
+		const dx = this.x - vector.x, dy = this.y - vector.y;
+		return dx * dx + dy * dy;
+	}
+
+	distance(vector: Vector2) {
+		return Math.sqrt(this.distanceSq(vector));
 	}
 
 	rotate(radians: number) {

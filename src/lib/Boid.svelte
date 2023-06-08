@@ -1,18 +1,15 @@
 <script lang="ts">
 	import type Boid from "../models/Boid";
 
-	import { coordinateSystem } from "../stores";
-
 	export let boid: Boid;
 </script>
 
 <div
 	class="boid"
-	style:--coordinate-system-x={$coordinateSystem[0]}
-	style:--coordinate-system-y={$coordinateSystem[1]}
 	style:--x={boid.position.x}
 	style:--y={boid.position.y}
 	style:--angle={boid.velocity.angle}
+	style:--color={boid.color}
 >
 	<div class="boid-graphic" />
 </div>
@@ -22,8 +19,8 @@
 		position: absolute;
 		inset: 0;
 		transform: translate(-50%, -50%)
-			translateX(calc(100% / var(--coordinate-system-x) * var(--x)))
-			translateY(calc(100% / var(--coordinate-system-y) * var(--y)))
+			translateX(calc(100% / var(--world-size-x) * var(--x)))
+			translateY(calc(100% / var(--world-size-y) * var(--y)))
 			rotate(calc(1rad * var(--angle)));
 
 		display: flex;
@@ -32,9 +29,9 @@
 	}
 
 	.boid-graphic {
-		width: 5%;
-		height: 2.5%;
-		background-color: white;
+		padding-left: 4%;
+		padding-top: 2%;
+		background-color: var(--color);
 		clip-path: polygon(0 0, 0% 100%, 100% 50%);
 	}
 </style>

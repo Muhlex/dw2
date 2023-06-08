@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount, onDestroy } from "svelte";
-	import { frameDuration, coordinateSystem } from "../stores";
+	import { frameDuration } from "../stores";
+
 	import Simulation from "../models/Simulation";
 
-	import Boid from "../lib/Boid.svelte";
+	import Boid from "./Boid.svelte";
+	import Arrow from "./Arrow.svelte";
 
 	const simulation = new Simulation();
 	let simulationEl: HTMLDivElement;
@@ -12,12 +14,12 @@
 		event.preventDefault();
 		const { clientX, clientY, button } = event;
 		const { x, y, width, height } = simulationEl.getBoundingClientRect();
-		const offset = [clientX - x, clientY - y];
-		const coordinateOffset = [
-			offset[0] / width * $coordinateSystem[0],
-			offset[1] / height * $coordinateSystem[1],
-		];
-		simulation.onClick(coordinateOffset[0], coordinateOffset[1], button);
+		const offset = { x: clientX - x, y: clientY - y};
+		const coordinateOffset = {
+			x: offset.x / width * simulation.world.size.x,
+			y: offset.y / height * simulation.world.size.y,
+		};
+		simulation.onClick(coordinateOffset.x, coordinateOffset.y, button);
 	}
 
 	let frameRequestID = -1;
@@ -32,27 +34,43 @@
 	onDestroy(() => window.cancelAnimationFrame(frameRequestID));
 </script>
 
-<div
-	class="simulation"
-	bind:this={simulationEl}
-	on:pointerdown={onPointerdown}
-	on:contextmenu|preventDefault
->
-	{#each $simulation.boids as boid}
-		<Boid {boid} />
-	{/each}
+<div class="simulation-container">
+	<div
+		class="simulation"
+		style:--world-size-x={$simulation.world.size.x}
+		style:--world-size-y={$simulation.world.size.y}
+		style:--world-size-ratio={$simulation.world.size.x / $simulation.world.size.y}
+		bind:this={simulationEl}
+		on:pointerdown={onPointerdown}
+		on:contextmenu|preventDefault
+	>
+		{#each $simulation.boids as boid}
+			<Boid {boid} />
+			<Arrow position={boid.position} direction={boid.debug.separationDeltaSum.copy().multiply(1000)} />
+		{/each}
+	</div>
 </div>
 <div class="controls">
 	<button on:click={() => simulation.reset()}>✨ Reset</button>
 </div>
 
 <style>
-	.simulation {
+	.simulation-container {
 		position: relative;
-		width: min(100%, 600px);
-		aspect-ratio: 1;
+		flex-grow: 1;
+	}
+
+	.simulation {
+		position: absolute;
+		margin: auto;
+		inset: 0;
+		max-width: 100%;
+		max-height: 100%;
+		aspect-ratio: var(--world-size-ratio);
+
 		background-color: black;
 		box-shadow: 0 0 8em rgb(0, 0, 0, 0.5);
+		contain: size layout style;
 	}
 
 	.simulation :global(*) {
@@ -63,5 +81,6 @@
 		margin-top: 1em;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 	}
 </style>
