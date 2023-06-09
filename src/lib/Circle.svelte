@@ -23,12 +23,15 @@
 <style>
 	.circle {
 		position: absolute;
-		inset: 0;
+		top: 0;
+		left: 0;
+		width: 100%;
+		aspect-ratio: 1;
 
 		--scale: calc(var(--radius) * 2 / var(--world-size-x));
 		transform: translate(-50%, -50%)
 			translateX(calc(100% / var(--world-size-x) * var(--position-x)))
-			translateY(calc(100% / var(--world-size-y) * var(--position-y)))
+			translateY(calc(100% / var(--world-size-x) * var(--position-y)))
 			scale(var(--scale));
 
 		border: calc(1px / var(--scale)) solid;
