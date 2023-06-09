@@ -3,7 +3,9 @@ import Vector2 from "./Vector2";
 export default class Boid {
 	position: Vector2;
 	velocity: Vector2;
+
 	color: string;
+	size = 25;
 
 	minSpeed = 3;
 	maxSpeed = 8;

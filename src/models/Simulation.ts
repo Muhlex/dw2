@@ -39,6 +39,7 @@ export default class Simulation extends Store {
 
 	resetConfig() {
 		this.boidsConfig = pick(new Boid(),
+			"color", "size",
 			"minSpeed", "maxSpeed",
 			"avoidRadius", "avoidFactor",
 			"visionRadius", "centeringFactor", "matchingFactor",

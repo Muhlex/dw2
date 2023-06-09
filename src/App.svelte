@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ColorTranslator } from 'colortranslator';
+
 	import { targetFps } from "./stores";
 	import Simulation from "./models/Simulation";
 
@@ -43,6 +45,21 @@
 	</div>
 	<div class="controls-boid">
 		<h3>Boids</h3>
+		<fieldset>
+			<legend>Appearance</legend>
+			<label>
+				color:
+				<input
+					type="color"
+					value={ColorTranslator.toHEX($simulation.boidsConfig.color)}
+					on:change={({ currentTarget }) => $simulation.boidsConfig.color = currentTarget.value}
+				/>
+			</label>
+			<label>
+				size: {$simulation.boidsConfig.size}
+				<input type="range" bind:value={$simulation.boidsConfig.size} min=1 max=100 step=1 />
+			</label>
+		</fieldset>
 		<fieldset>
 			<legend>Speed</legend>
 			<label>
@@ -177,5 +194,9 @@
 
 	fieldset {
 		min-width: 240px;
+	}
+
+	input[type="color"] {
+		width: 100%;
 	}
 </style>
