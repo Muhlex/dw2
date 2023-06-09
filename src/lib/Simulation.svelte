@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from "svelte";
-	import { targetFrameDuration } from "../stores";
+	import { targetTps } from "../stores";
 
 	import Vector2 from "../models/Vector2";
 	import Simulation from "../models/Simulation";
@@ -27,38 +27,49 @@
 		simulation.onClick(coordinateOffset.x, coordinateOffset.y, button);
 	}
 
-	let frameRequestID = -1;
-	let then = performance.now();
-	let perf = {
-		smoothingInterval: 500,
-		measure: {
-			start: 0,
-			frameCount: 0,
-			frameTimeSum: 0,
-			avgFrameTime: Infinity
-		}
-	};
-	$: fps = 1000 / perf.measure.avgFrameTime;
-	const onFrame = (now: number) => {
-		frameRequestID = window.requestAnimationFrame(onFrame);
-		const frameTime = now - then;
-		// Enfore FPS target:
-		if (frameTime < $targetFrameDuration) return;
-
-		simulation.tick();
-		// Measure performance:
-		if (now - perf.measure.start > perf.smoothingInterval) {
-			perf.measure.avgFrameTime = perf.measure.frameTimeSum / perf.measure.frameCount;
-			perf.measure.start = now;
-			perf.measure.frameCount = 0;
-			perf.measure.frameTimeSum = 0;
-		}
-		perf.measure.frameCount++;
-		perf.measure.frameTimeSum += frameTime;
-		then = now - (frameTime % $targetFrameDuration);
+	let animationFrameRequestID = -1;
+	let lastFrameTime = performance.now();
+	let lastTickTime = lastFrameTime;
+	let delta = 0.0;
+	const maxTickDelay = 500;
+	const measure = {
+		tick: { smooth: 20, time: 0, timeLazy: 0 },
+		frame: { smooth: 10, time: 0, timeLazy: 0 },
+		lazyInterval: 500,
+		lazyIntervalID: -1,
 	}
-	onMount(() => frameRequestID = window.requestAnimationFrame(onFrame));
-	onDestroy(() => window.cancelAnimationFrame(frameRequestID));
+	$: targetTickInterval = 1000 / $targetTps;
+	const onAnimationFrame = (time: number) => {
+		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
+
+		const lastFrameDelta = time - lastFrameTime;
+		measure.frame.time += (lastFrameDelta - measure.frame.time) / measure.frame.smooth;
+		lastFrameTime = time;
+
+		delta = Math.min(delta + lastFrameDelta, maxTickDelay);
+
+		while (delta > targetTickInterval) {
+			simulation.tick();
+
+			delta -= targetTickInterval;
+
+			const tickTime = performance.now();
+			const lastTickDelta = tickTime - lastTickTime;
+			measure.tick.time += (lastTickDelta - measure.tick.time) / measure.tick.smooth;
+			lastTickTime = tickTime;
+		}
+	}
+	onMount(() => {
+		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
+		measure.lazyIntervalID = window.setInterval(() => {
+			measure.tick.timeLazy = measure.tick.time;
+			measure.frame.timeLazy = measure.frame.time;
+		}, measure.lazyInterval);
+	});
+	onDestroy(() => {
+		window.cancelAnimationFrame(animationFrameRequestID);
+		window.clearInterval(measure.lazyIntervalID);
+	});
 </script>
 
 <div
@@ -71,7 +82,8 @@
 	on:contextmenu|preventDefault
 >
 	<div class="stats">
-		<span>FPS {fps.toFixed(0)}</span>
+		<span>FPS {(1000 / measure.frame.timeLazy).toFixed(0)}</span>
+		<span>TPS {(1000 / measure.tick.timeLazy).toFixed(0)}</span>
 		<span>Boids {$simulation.boids.length}</span>
 	</div>
 	{#each $simulation.boids as boid}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ColorTranslator } from 'colortranslator';
 
-	import { targetFps } from "./stores";
+	import { targetTps } from "./stores";
 	import Simulation from "./models/Simulation";
 
 	import SimulationComponent from "./lib/Simulation.svelte";
@@ -24,8 +24,8 @@
 		<button on:click={() => simulation.reset()}>🗑️ Clear</button>
 		<button on:click={() => simulation.spawnGrid()}>🔢️ Spawn Grid</button>
 		<label>
-			FPS Limit: {$targetFps}
-			<input type="range" bind:value={$targetFps} min=0 max=120 />
+			TPS Target: {$targetTps}
+			<input type="range" bind:value={$targetTps} min=0 max=400 />
 		</label>
 		<label>
 			Render debug views:
