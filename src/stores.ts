@@ -1,4 +1,4 @@
-import { readable, derived } from "svelte/store";
+import { writable, derived } from "svelte/store";
 
-export const fps = readable(60);
-export const frameDuration = derived(fps, $fps => 1000 / $fps);
+export const targetFps = writable(60);
+export const targetFrameDuration = derived(targetFps, $fps => 1000 / $fps);

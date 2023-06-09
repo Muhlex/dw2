@@ -29,8 +29,8 @@
 	}
 
 	.boid-graphic {
-		padding-left: 4%;
-		padding-top: 2%;
+		width: clamp(1em, 4%, 2em);
+		aspect-ratio: 1.5;
 		background-color: var(--color);
 		clip-path: polygon(0 0, 0% 100%, 100% 50%);
 	}

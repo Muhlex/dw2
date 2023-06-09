@@ -8,8 +8,8 @@
 
 <div
 	class="arrow"
-	style:--origin-x={position.x}
-	style:--origin-y={position.y}
+	style:--position-x={position.x}
+	style:--position-y={position.y}
 	style:--direction-x={direction.x}
 	style:--direction-y={direction.y}
 	style:--angle={direction.angle}
@@ -27,8 +27,8 @@
 		--scale-x: calc(var(--length) / var(--world-size-x));
 		transform-origin: left center;
 		transform: translateY(-50%)
-			translateX(calc(100% / var(--world-size-x) * var(--origin-x)))
-			translateY(calc(100% / var(--world-size-y) * var(--origin-y)))
+			translateX(calc(100% / var(--world-size-x) * var(--position-x)))
+			translateY(calc(100% / var(--world-size-y) * var(--position-y)))
 			rotate(calc(1rad * var(--angle)))
 			scaleX(var(--scale-x));
 
@@ -44,7 +44,7 @@
 		background-color: var(--color);
 	}
 	.arrow-graphic::after {
-		content: '';
+		content: "";
 		position: absolute;
 		right: 0;
 		top: 50%;
