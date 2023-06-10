@@ -5,27 +5,24 @@
 	import Vector2 from "../models/Vector2";
 	import Simulation from "../models/Simulation";
 
+	import { interact } from "./SimulationActions";
+
 	import Boid from "./Boid.svelte";
 	import Arrow from "./Arrow.svelte";
 	import Circle from "./Circle.svelte";
 	import Rect from "./Rect.svelte";
 
 	export let simulation: Simulation;
-	export let debug: { [option: string]: boolean }
-
-	let simulationEl: HTMLDivElement;
-
-	const onPointerdown = (event: PointerEvent) => {
-		event.preventDefault();
-		const { clientX, clientY, button } = event;
-		const { x, y, width, height } = simulationEl.getBoundingClientRect();
-		const offset = { x: clientX - x, y: clientY - y};
-		const coordinateOffset = {
-			x: offset.x / width * simulation.world.size.x,
-			y: offset.y / height * simulation.world.size.y,
-		};
-		simulation.onClick(coordinateOffset.x, coordinateOffset.y, button);
-	}
+	export let debug: {
+		render: {
+			avoidanceDelta: boolean,
+			centeringDelta: boolean,
+			matchingDelta: boolean,
+			avoidRadius: boolean,
+			visionRadius: boolean,
+			edgeMargin: boolean,
+		}
+	};
 
 	let animationFrameRequestID = -1;
 	let lastFrameTime = performance.now();
@@ -77,9 +74,7 @@
 	style:--world-size-x={$simulation.world.size.x}
 	style:--world-size-y={$simulation.world.size.y}
 	style:--world-size-ratio={$simulation.world.size.x / $simulation.world.size.y}
-	bind:this={simulationEl}
-	on:pointerdown={onPointerdown}
-	on:contextmenu|preventDefault
+	use:interact={simulation}
 >
 	<div class="stats">
 		<span>FPS {(1000 / measure.frame.timeLazy).toFixed(0)}</span>
@@ -88,7 +83,7 @@
 	</div>
 	{#each $simulation.boids as boid}
 		<Boid {boid} />
-		{#if debug.edgeMargin}
+		{#if debug.render.edgeMargin}
 			<Rect
 				color={boid.color}
 				opacity={0.25}
@@ -96,31 +91,31 @@
 				size={$simulation.world.size.copy().subtract(new Vector2(boid.edgeMargin * 2, boid.edgeMargin * 2))}
 			/>
 		{/if}
-		{#if debug.avoidanceDelta}
+		{#if debug.render.avoidanceDelta}
 			<Arrow
 				color="red"
 				position={boid.position}
 				direction={boid.debug.avoidanceDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.centeringDelta}
+		{#if debug.render.centeringDelta}
 			<Arrow
 				color="lime"
 				position={boid.position}
 				direction={boid.debug.centeringDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.matchingDelta}
+		{#if debug.render.matchingDelta}
 			<Arrow
 				color="yellow"
 				position={boid.position}
 				direction={boid.debug.matchingDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.avoidRadius}
+		{#if debug.render.avoidRadius}
 			<Circle color="red" position={boid.position} radius={boid.avoidRadius} />
 		{/if}
-		{#if debug.visionRadius}
+		{#if debug.render.visionRadius}
 			<Circle color="white" position={boid.position} radius={boid.visionRadius} />
 		{/if}
 	{/each}

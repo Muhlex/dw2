@@ -5,8 +5,6 @@ import Vector2 from "./Vector2";
 import World from "./World";
 import Boid from "./Boid";
 
-enum MouseButton { Primary, Middle, Secondary };
-
 export default class Simulation extends Store {
 	world = new World(1000, 1000);
 	boids: Boid[] = [];
@@ -128,25 +126,6 @@ export default class Simulation extends Store {
 
 			self.position.add(self.velocity);
 		}
-		this.notify();
-	}
-
-	onClick(x: number, y: number, button: MouseButton) {
-		({
-			[MouseButton.Primary]: () => {
-				this.spawnBoid(x, y);
-			},
-			[MouseButton.Secondary]: () => {
-				for (let i = 0; i < 10; i++) {
-					this.spawnBoid(x, y);
-				}
-			},
-			[MouseButton.Middle]: () => {
-				for (let i = 0; i < 100; i++) {
-					this.spawnBoid(x, y);
-				}
-			},
-		}[button]?.());
 		this.notify();
 	}
 }

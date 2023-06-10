@@ -21,18 +21,21 @@ html {
 	-webkit-text-size-adjust: 100%;
 }
 
-body {
-	margin: 0;
+html {
 	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
+	min-height: stretch;
+	min-height: -webkit-fill-available;
 }
 
-#app {
+html, body, #app {
 	flex-grow: 1;
 
 	display: flex;
 	flex-direction: column;
+}
+
+body {
+	margin: 0;
 }
 
 button {
