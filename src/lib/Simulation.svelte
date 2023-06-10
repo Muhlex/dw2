@@ -18,14 +18,15 @@
 	let lastFrameTime = performance.now();
 	let lastTickTime = lastFrameTime;
 	let delta = 0.0;
-	const maxTickDelay = 500;
 	const measure = {
 		tick: { smooth: 20, time: 0, timeLazy: 0 },
 		frame: { smooth: 10, time: 0, timeLazy: 0 },
 		lazyInterval: 500,
 		lazyIntervalID: -1,
 	}
+	const maxTicksPerFrame = 8;
 	$: targetTickInterval = 1000 / $options.render.targetTps;
+	$: maxTickDelay = targetTickInterval * maxTicksPerFrame;
 	const onAnimationFrame = (time: number) => {
 		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
 
