@@ -49,6 +49,6 @@
 
 	.rect.fill {
 		border: none;
-		background-color: var(--color);
+		background: var(--color);
 	}
 </style>

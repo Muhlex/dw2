@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from "svelte";
-	import { targetTps } from "../stores";
+	import options from "../options";
 
 	import Vector2 from "../models/Vector2";
 	import Simulation from "../models/Simulation";
@@ -13,16 +13,6 @@
 	import Rect from "./Rect.svelte";
 
 	export let simulation: Simulation;
-	export let debug: {
-		render: {
-			avoidanceDelta: boolean,
-			centeringDelta: boolean,
-			matchingDelta: boolean,
-			avoidRadius: boolean,
-			visionRadius: boolean,
-			edgeMargin: boolean,
-		}
-	};
 
 	let animationFrameRequestID = -1;
 	let lastFrameTime = performance.now();
@@ -35,7 +25,7 @@
 		lazyInterval: 500,
 		lazyIntervalID: -1,
 	}
-	$: targetTickInterval = 1000 / $targetTps;
+	$: targetTickInterval = 1000 / $options.render.targetTps;
 	const onAnimationFrame = (time: number) => {
 		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
 
@@ -81,9 +71,29 @@
 		<span>TPS {(1000 / measure.tick.timeLazy).toFixed(0)}</span>
 		<span>Boids {$simulation.boids.length}</span>
 	</div>
+	{#each $simulation.attractors as attractor}
+		{@const hsl = `\
+			${attractor.strength < 0 ? "5" : "215"},\
+			100%,\
+			${100 - Math.min(50, Math.abs(attractor.strength) / 0.008 * 100)}%\
+			`
+		}
+		<Circle
+			fill color={
+				attractor.inverse
+				? `radial-gradient(closest-side, transparent, hsl(${hsl}, 0.75))`
+				: `radial-gradient(closest-side, hsl(${hsl}, 0.75), transparent)`
+			}
+			position={attractor.position} radius={attractor.radius}
+		/>
+		<Circle
+			fill color="hsl({hsl})"
+			position={attractor.position} radius={attractor.radius / 8}
+		/>
+	{/each}
 	{#each $simulation.boids as boid}
 		<Boid {boid} />
-		{#if debug.render.edgeMargin}
+		{#if $options.render.debug.edgeMargin}
 			<Rect
 				color={boid.color}
 				opacity={0.25}
@@ -91,31 +101,38 @@
 				size={$simulation.world.size.copy().subtract(new Vector2(boid.edgeMargin * 2, boid.edgeMargin * 2))}
 			/>
 		{/if}
-		{#if debug.render.avoidanceDelta}
+		{#if $options.render.debug.avoidanceDelta}
 			<Arrow
 				color="red"
 				position={boid.position}
 				direction={boid.debug.avoidanceDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.render.centeringDelta}
+		{#if $options.render.debug.centeringDelta}
 			<Arrow
 				color="lime"
 				position={boid.position}
 				direction={boid.debug.centeringDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.render.matchingDelta}
+		{#if $options.render.debug.matchingDelta}
 			<Arrow
 				color="yellow"
 				position={boid.position}
 				direction={boid.debug.matchingDelta.copy().multiply(1000)}
 			/>
 		{/if}
-		{#if debug.render.avoidRadius}
+		{#if $options.render.debug.attractionDelta}
+			<Arrow
+				color="white"
+				position={boid.position}
+				direction={boid.debug.attractionDelta.copy().multiply(1000)}
+			/>
+		{/if}
+		{#if $options.render.debug.avoidRadius}
 			<Circle color="red" position={boid.position} radius={boid.avoidRadius} />
 		{/if}
-		{#if debug.render.visionRadius}
+		{#if $options.render.debug.visionRadius}
 			<Circle color="white" position={boid.position} radius={boid.visionRadius} />
 		{/if}
 	{/each}

@@ -33,7 +33,7 @@
 	.boid-graphic {
 		width: 100%;
 		aspect-ratio: 1.5;
-		background-color: var(--color);
+		background: var(--color);
 		clip-path: polygon(0 0, 0% 100%, 100% 50%);
 	}
 </style>

@@ -1,13 +1,15 @@
-import type { Action } from 'svelte/action';
-import type { WithTarget } from "../util";
-import type Simulation from "../models/Simulation";
+import type { ActionReturn } from 'svelte/action';
+
+import options, { type SimulationOptions } from '../options';
+import type Simulation from '../models/Simulation';
+
+let $options: SimulationOptions;
+options.subscribe(value => $options = value);
 
 enum MouseButton { Primary, Middle, Secondary };
 
-export const interact: Action<HTMLElement, Simulation> = (node, simulation) => {
-	const keys = {
-		active: new Set<KeyboardEvent["key"]>(),
-	};
+export const interact = (node: HTMLElement, simulation: Simulation): ActionReturn => {
+	const keys = { active: new Set<KeyboardEvent["key"]>() };
 
 	const onKeydown = ({ key }: KeyboardEvent) => {
 		keys.active.add(key);
@@ -19,16 +21,16 @@ export const interact: Action<HTMLElement, Simulation> = (node, simulation) => {
 		keys.active.clear();
 	};
 
-	const onPointerdown = ({ currentTarget, clientX, clientY, button }: WithTarget<PointerEvent, typeof node>) => {
-		const { x, y, width, height } = currentTarget.getBoundingClientRect();
+	const onPointerdown = ({ currentTarget, clientX, clientY, button }: PointerEvent) => {
+		const { x, y, width, height } = (currentTarget as typeof node).getBoundingClientRect();
 		const offset = { x: clientX - x, y: clientY - y };
 		const coords = {
 			x: offset.x / width * simulation.world.size.x,
 			y: offset.y / height * simulation.world.size.y,
 		};
 
-		({
-			[MouseButton.Primary]() {
+		switch (button) {
+			case MouseButton.Primary:
 				let amount = 0;
 				if (keys.active.has("Shift")) amount += 10;
 				if (keys.active.has("Control")) amount += 100;
@@ -36,17 +38,25 @@ export const interact: Action<HTMLElement, Simulation> = (node, simulation) => {
 				amount ||= 1;
 
 				for (let i = 0; i < amount; i++) {
-					simulation.spawnBoid(coords.x, coords.y);
+					simulation.spawnBoid(coords.x, coords.y, $options.boids);
 				}
-			},
-			[MouseButton.Secondary]() {
-			},
-			[MouseButton.Middle]() {
-			},
-		}[button]?.());
+				break;
+
+			case MouseButton.Secondary:
+				simulation.spawnAttractor(coords.x, coords.y, $options.attractors);
+				break;
+
+			case MouseButton.Middle:
+				break;
+		}
 	};
 
+	const onContextmenu = (event: MouseEvent) => {
+		event.preventDefault();
+	}
+
 	node.addEventListener("pointerdown", onPointerdown);
+	node.addEventListener("contextmenu", onContextmenu);
 	window.addEventListener("keydown", onKeydown);
 	window.addEventListener("keyup", onKeyup);
 	window.addEventListener("blur", onBlur);
@@ -57,6 +67,7 @@ export const interact: Action<HTMLElement, Simulation> = (node, simulation) => {
 		},
 		destroy() {
 			node.removeEventListener("pointerdown", onPointerdown);
+			node.removeEventListener("contextmenu", onContextmenu);
 			window.removeEventListener("keydown", onKeydown);
 			window.removeEventListener("keyup", onKeyup);
 			window.removeEventListener("blur", onBlur);

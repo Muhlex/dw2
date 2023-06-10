@@ -1,38 +1,32 @@
 <script lang="ts">
-	import type { ComponentProps } from "svelte";
 	import { ColorTranslator } from "colortranslator";
 
-	import { targetTps } from "./stores";
+	import options, { resetBoids, resetAttractors } from "./options";
 	import Simulation from "./models/Simulation";
 
 	import SimulationComponent from "./lib/Simulation.svelte";
 
 	const simulation = new Simulation();
-	simulation.spawnGrid();
+	simulation.spawnBoidGrid(5, 5, $options.boids);
 
-	const debug: ComponentProps<SimulationComponent>["debug"] = {
-		render: {
-			avoidanceDelta: false,
-			centeringDelta: false,
-			matchingDelta: false,
-			avoidRadius: false,
-			visionRadius: false,
-			edgeMargin: false,
-		}
-	};
+	$: renderDebugKeys = Object.keys($options.render.debug) as (keyof typeof $options.render.debug)[];
 </script>
 
 <main>
 	<div class="simulation">
-		<SimulationComponent {simulation} {debug} />
+		<SimulationComponent {simulation} />
 	</div>
 	<div class="controls">
 		<div class="settings">
-			<button on:click={() => simulation.reset()}>🗑️ Clear</button>
-			<button on:click={() => simulation.spawnGrid()}>🔢️ Spawn Grid</button>
+			<button on:click={() => simulation.clear()}>
+				🗑️ Clear
+			</button>
+			<button on:click={() => simulation.spawnBoidGrid(undefined, undefined, $options.boids)}>
+				🔢️ Spawn Grid
+			</button>
 			<label>
-				TPS Target: {$targetTps}
-				<input type="range" bind:value={$targetTps} min=0 max=400 />
+				TPS Target: {$options.render.targetTps}
+				<input type="range" bind:value={$options.render.targetTps} min=0 max=400 />
 			</label>
 			<fieldset>
 				<legend>Render</legend>
@@ -41,13 +35,9 @@
 					style:grid-template-columns="1fr 1fr 1fr"
 					style:column-gap="1em"
 				>
-					{#each Object.entries(debug.render) as [option, value]}
+					{#each renderDebugKeys as option}
 						<label class="row">
-							<input
-								type="checkbox"
-								checked={value}
-								on:change={({ currentTarget }) => debug.render[option] = currentTarget.checked}
-							>
+							<input type="checkbox" bind:checked={$options.render.debug[option]}>
 							{option}
 						</label>
 					{/each}
@@ -55,87 +45,110 @@
 			</fieldset>
 		</div>
 		<div class="params">
-			<h3>World</h3>
-			<fieldset>
-				<legend>Size</legend>
-				<label>
-					x
-					<input type="number" bind:value={$simulation.world.size.x} min=0 max=10000 step=1 />
-				</label>
-				<label>
-					y
-					<input type="number" bind:value={$simulation.world.size.y} min=0 max=10000 step=1 />
-				</label>
-			</fieldset>
-			<h3>Boids</h3>
-			<fieldset>
-				<legend>Appearance</legend>
-				<label>
-					color:
-					<input
-						type="color"
-						value={ColorTranslator.toHEX($simulation.boidsConfig.color)}
-						on:change={({ currentTarget }) => $simulation.boidsConfig.color = currentTarget.value}
-					/>
-				</label>
-				<label>
-					size: {$simulation.boidsConfig.size}
-					<input type="range" bind:value={$simulation.boidsConfig.size} min=1 max=100 step=1 />
-				</label>
-			</fieldset>
-			<fieldset>
-				<legend>Speed</legend>
-				<label>
-					min: {$simulation.boidsConfig.minSpeed.toFixed(1)}
-					<input type="range" bind:value={$simulation.boidsConfig.minSpeed} min=0 max=10 step=0.1 />
-				</label>
-				<label>
-					max: {$simulation.boidsConfig.maxSpeed.toFixed(1)}
-					<input type="range" bind:value={$simulation.boidsConfig.maxSpeed} min=0 max=25 step=0.1 />
-				</label>
-			</fieldset>
-			<fieldset>
-				<legend>Avoidance</legend>
-				<label>
-					radius: {$simulation.boidsConfig.avoidRadius}
-					<input type="range" bind:value={$simulation.boidsConfig.avoidRadius} min=0 max=250 step=1 />
-				</label>
-				<label>
-					factor: {$simulation.boidsConfig.avoidFactor.toFixed(3)}
-					<input type="range" bind:value={$simulation.boidsConfig.avoidFactor} min=0 max=0.1 step=0.001 />
-				</label>
-			</fieldset>
-			<fieldset>
-				<legend>Vision</legend>
-				<label>
-					radius: {$simulation.boidsConfig.visionRadius}
-					<input type="range" bind:value={$simulation.boidsConfig.visionRadius} min=0 max=500 step=1 />
-				</label>
-				<label>
-					centeringFactor: {$simulation.boidsConfig.centeringFactor.toFixed(4)}
-					<input type="range" bind:value={$simulation.boidsConfig.centeringFactor} min=0 max=0.005 step=0.0001 />
-				</label>
-				<label>
-					matchingFactor: {$simulation.boidsConfig.matchingFactor}
-					<input type="range" bind:value={$simulation.boidsConfig.matchingFactor} min=0 max=0.5 step=0.001 />
-				</label>
-			</fieldset>
-			<fieldset>
-				<legend>Edge Avoidance</legend>
-				<label>
-					margin: {$simulation.boidsConfig.edgeMargin}
-					<input
-						type="range" bind:value={$simulation.boidsConfig.edgeMargin}
-						min=0 max={Math.min($simulation.world.size.x, $simulation.world.size.y) / 2} step=1
-					/>
-				</label>
-				<label>
-					turnFactor: {$simulation.boidsConfig.edgeTurnFactor.toFixed(2)}
-					<input type="range" bind:value={$simulation.boidsConfig.edgeTurnFactor} min=0 max=1 step=0.01 />
-				</label>
-			</fieldset>
-			<button on:click={() => simulation.applyConfig()}>✔️ Apply to All</button>
-			<button on:click={() => simulation.resetConfig()} style:font-size=0.75em>🔄 Reset</button>
+			<div class="group">
+				<h3>World</h3>
+				<fieldset>
+					<legend>Size</legend>
+					<label>
+						x
+						<input type="number" bind:value={$simulation.world.size.x} min=0 max=10000 step=1 />
+					</label>
+					<label>
+						y
+						<input type="number" bind:value={$simulation.world.size.y} min=0 max=10000 step=1 />
+					</label>
+				</fieldset>
+			</div>
+			<div class="group">
+				<h3>Boids</h3>
+				<fieldset>
+					<legend>Appearance</legend>
+					<label>
+						color:
+						<input
+							type="color"
+							value={ColorTranslator.toHEX($options.boids.color)}
+							on:change={({ currentTarget }) => $options.boids.color = currentTarget.value}
+						/>
+					</label>
+					<label>
+						size: {$options.boids.size}
+						<input type="range" bind:value={$options.boids.size} min=1 max=100 step=1 />
+					</label>
+				</fieldset>
+				<fieldset>
+					<legend>Speed</legend>
+					<label>
+						min: {$options.boids.minSpeed.toFixed(1)}
+						<input type="range" bind:value={$options.boids.minSpeed} min=0 max=10 step=0.1 />
+					</label>
+					<label>
+						max: {$options.boids.maxSpeed.toFixed(1)}
+						<input type="range" bind:value={$options.boids.maxSpeed} min=0 max=25 step=0.1 />
+					</label>
+				</fieldset>
+				<fieldset>
+					<legend>Avoidance</legend>
+					<label>
+						radius: {$options.boids.avoidRadius}
+						<input type="range" bind:value={$options.boids.avoidRadius} min=0 max=250 step=1 />
+					</label>
+					<label>
+						factor: {$options.boids.avoidFactor.toFixed(3)}
+						<input type="range" bind:value={$options.boids.avoidFactor} min=0 max=0.1 step=0.001 />
+					</label>
+				</fieldset>
+				<fieldset>
+					<legend>Vision</legend>
+					<label>
+						radius: {$options.boids.visionRadius}
+						<input type="range" bind:value={$options.boids.visionRadius} min=0 max=500 step=1 />
+					</label>
+					<label>
+						centeringFactor: {$options.boids.centeringFactor.toFixed(4)}
+						<input type="range" bind:value={$options.boids.centeringFactor} min=0 max=0.005 step=0.0001 />
+					</label>
+					<label>
+						matchingFactor: {$options.boids.matchingFactor.toFixed(3)}
+						<input type="range" bind:value={$options.boids.matchingFactor} min=0 max=0.5 step=0.001 />
+					</label>
+				</fieldset>
+				<fieldset>
+					<legend>Edge Avoidance</legend>
+					<label>
+						margin: {$options.boids.edgeMargin}
+						<input
+							type="range" bind:value={$options.boids.edgeMargin}
+							min=0 max={Math.min($simulation.world.size.x, $simulation.world.size.y) / 2} step=1
+						/>
+					</label>
+					<label>
+						turnFactor: {$options.boids.edgeTurnFactor.toFixed(2)}
+						<input type="range" bind:value={$options.boids.edgeTurnFactor} min=0 max=1 step=0.01 />
+					</label>
+				</fieldset>
+				<button on:click={() => simulation.applyBoidsOptions($options.boids)}>✔️ Apply to All</button>
+				<button on:click={resetBoids} style:font-size=0.75em>🔄 Reset</button>
+			</div>
+			<div class="group">
+				<h3>Attractors</h3>
+				<fieldset>
+					<legend>Attraction / Repulsion</legend>
+					<label>
+						radius: {$options.attractors.radius}
+						<input type="range" bind:value={$options.attractors.radius} min=20 max=2000 step=5 />
+					</label>
+					<label>
+						strength: {$options.attractors.strength.toFixed(4)}
+						<input type="range" bind:value={$options.attractors.strength} min=-0.004 max=0.004 step=0.0001 />
+					</label>
+					<label class="row">
+						<input type="checkbox" bind:checked={$options.attractors.inverse}>
+						inverse
+					</label>
+				</fieldset>
+				<button on:click={resetAttractors} style:font-size=0.75em>🔄 Reset</button>
+			</div>
 		</div>
 	</div>
 </main>
@@ -170,7 +183,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		align-items: flex-start;
+		align-items: flex-end;
 		gap: 1em;
 	}
 
@@ -179,14 +192,21 @@
 		height: 0;
 		min-height: 100%;
 		overflow-y: auto;
+		min-width: clamp(200px, 25vw, 400px);
 
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: 4em;
 	}
 	/* Cannot use regular justify-content: center due to overflow-y: */
 	.params > *:first-child { margin-top: auto; }
 	.params > *:last-child { margin-bottom: auto; }
+
+	.params .group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+	}
 
 	label {
 		display: flex;

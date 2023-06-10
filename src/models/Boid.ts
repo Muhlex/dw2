@@ -24,13 +24,14 @@ export default class Boid {
 		avoidanceDelta: new Vector2(),
 		centeringDelta: new Vector2(),
 		matchingDelta: new Vector2(),
+		attractionDelta: new Vector2(),
 	};
 
-	constructor(x = 0, y = 0, config?: Partial<Boid>) {
+	constructor(x = 0, y = 0, options?: Partial<Boid>) {
 		this.position = new Vector2(x, y);
 		this.velocity = new Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1);
 		this.color = `hsl(${Math.random()}turn 100% 70%)`;
 
-		Object.assign(this, config);
+		Object.assign(this, options);
 	}
 }
