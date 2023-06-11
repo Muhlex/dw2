@@ -1,14 +1,12 @@
-import Vector2 from "./Vector2";
+import Entity from "./Entity";
 
-export default class Attractor {
-	position: Vector2;
-
+export default class Attractor extends Entity {
 	radius = 250;
-	strength = 0.001;
+	strength = 0.0015;
 	inverse = false;
 
-	constructor(x = 0, y = 0, options?: Partial<Attractor>) {
-		this.position = new Vector2(x, y);
+	constructor(options: ConstructorParameters<typeof Entity>[0] & Partial<Attractor> = {}) {
+		super(options);
 
 		Object.assign(this, options);
 	}

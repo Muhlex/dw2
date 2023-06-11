@@ -3,6 +3,9 @@ import type { ActionReturn } from 'svelte/action';
 import options, { type SimulationOptions } from '../options';
 import type Simulation from '../models/Simulation';
 
+import Boid from '../models/Boid';
+import Attractor from '../models/Attractor';
+
 let $options: SimulationOptions;
 options.subscribe(value => $options = value);
 
@@ -38,12 +41,12 @@ export const interact = (node: HTMLElement, simulation: Simulation): ActionRetur
 				amount ||= 1;
 
 				for (let i = 0; i < amount; i++) {
-					simulation.spawnBoid(coords.x, coords.y, $options.boids);
+					simulation.spawn(new Boid({ x: coords.x, y: coords.y, ...$options.boids }));
 				}
 				break;
 
 			case MouseButton.Secondary:
-				simulation.spawnAttractor(coords.x, coords.y, $options.attractors);
+				simulation.spawn(new Attractor({ x: coords.x, y: coords.y, ...$options.attractors }));
 				break;
 
 			case MouseButton.Middle:

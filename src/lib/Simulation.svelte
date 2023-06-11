@@ -4,15 +4,19 @@
 
 	import Vector2 from "../models/Vector2";
 	import Simulation from "../models/Simulation";
+	import Boid from "../models/Boid";
+	import Attractor from "../models/Attractor";
 
-	import { interact } from "./SimulationActions";
+	import { interact } from "./simulation-actions";
 
-	import Boid from "./Boid.svelte";
+	import BoidComponent from "./Boid.svelte";
 	import Arrow from "./Arrow.svelte";
 	import Circle from "./Circle.svelte";
 	import Rect from "./Rect.svelte";
 
 	export let simulation: Simulation;
+	$: boids = $simulation.getEntitiesOfClass(Boid);
+	$: attractors = $simulation.getEntitiesOfClass(Attractor);
 
 	let animationFrameRequestID = -1;
 	let lastFrameTime = performance.now();
@@ -70,9 +74,9 @@
 	<div class="stats">
 		<span>FPS {(1000 / measure.frame.timeLazy).toFixed(0)}</span>
 		<span>TPS {(1000 / measure.tick.timeLazy).toFixed(0)}</span>
-		<span>Boids {$simulation.boids.length}</span>
+		<span>Boids {boids.length}</span>
 	</div>
-	{#each $simulation.attractors as attractor}
+	{#each attractors as attractor (attractor)}
 		{@const hsl = `\
 			${attractor.strength < 0 ? "5" : "215"},\
 			100%,\
@@ -92,8 +96,8 @@
 			position={attractor.position} radius={attractor.radius / 8}
 		/>
 	{/each}
-	{#each $simulation.boids as boid}
-		<Boid {boid} />
+	{#each boids as boid (boid)}
+		<BoidComponent {boid} />
 		{#if $options.render.debug.edgeMargin}
 			<Rect
 				color={boid.color}
@@ -165,6 +169,7 @@
 
 		font-weight: bold;
 		font-size: 0.75em;
+		text-shadow: 0 0 0.25em black, 0 0 1em black;
 		opacity: 0.5;
 
 		display: flex;

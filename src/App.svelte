@@ -2,12 +2,14 @@
 	import { ColorTranslator } from "colortranslator";
 
 	import options, { resetBoids, resetAttractors } from "./options";
+
 	import Simulation from "./models/Simulation";
+  import Boid from "./models/Boid";
 
 	import SimulationComponent from "./lib/Simulation.svelte";
 
 	const simulation = new Simulation();
-	simulation.spawnBoidGrid(5, 5, $options.boids);
+	simulation.spawnGrid((x, y) => new Boid({x, y, ...$options.boids}), 5, 5);
 
 	$: renderDebugKeys = Object.keys($options.render.debug) as (keyof typeof $options.render.debug)[];
 </script>
@@ -18,10 +20,10 @@
 	</div>
 	<div class="controls">
 		<div class="settings">
-			<button on:click={() => simulation.clear()}>
+			<button on:click={() => simulation.killAll()}>
 				🗑️ Clear
 			</button>
-			<button on:click={() => simulation.spawnBoidGrid(undefined, undefined, $options.boids)}>
+			<button on:click={() => simulation.spawnGrid((x, y) => new Boid({x, y, ...$options.boids}))}>
 				🔢️ Spawn Grid
 			</button>
 			<label>
@@ -127,8 +129,14 @@
 						<input type="range" bind:value={$options.boids.edgeTurnFactor} min=0 max=1 step=0.01 />
 					</label>
 				</fieldset>
-				<button on:click={() => simulation.applyBoidsOptions($options.boids)}>✔️ Apply to All</button>
-				<button on:click={resetBoids} style:font-size=0.75em>🔄 Reset</button>
+				<button on:click={() => {
+					simulation.getEntitiesOfClass(Boid).forEach(boid => Object.assign(boid, $options.boids))
+				}}>
+					✔️ Apply to All
+				</button>
+				<button on:click={resetBoids} style:font-size=0.75em>
+					🔄 Reset
+				</button>
 			</div>
 			<div class="group">
 				<h3>Attractors</h3>
