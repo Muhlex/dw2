@@ -1,5 +1,5 @@
 import Store from "../Store";
-import ClassSet from "../ClassSet";
+import ClassInstancesMap from "../ClassInstancesMap";
 
 import World from "./World";
 import Entity from "./entities/Entity";
@@ -8,7 +8,7 @@ import Entity from "./entities/Entity";
 export default class Simulation extends Store {
 	world = new World(1000, 1000);
 
-	entities = new ClassSet<typeof Entity>();
+	entities = new ClassInstancesMap<typeof Entity>();
 
 	spawn(entity: Entity) {
 		entity.setSimulation(this);
@@ -28,23 +28,23 @@ export default class Simulation extends Store {
 
 	kill(entity: Entity) {
 		this.entities.delete(entity);
+		this.notify();
 	}
 
 	killAll() {
 		this.entities.clear();
-
 		this.notify();
 	}
 
 	killAllOfClass(constructor: typeof Entity) {
 		this.entities.get(constructor).clear();
+		this.notify();
 	}
 
 	tick() {
 		for (const entity of this.entities.values()) {
 			entity.tick();
 		}
-
 		this.notify();
 	}
 }

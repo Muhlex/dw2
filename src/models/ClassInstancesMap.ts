@@ -1,4 +1,4 @@
-export default class ClassSet<Class extends new (...args: any[]) => any> {
+export default class ClassInstancesMap<Class extends new (...args: any[]) => any> {
 	#map = new Map<Class, Set<InstanceType<Class>>>();
 
 	get<Subclass extends Class>(constructor: Subclass): Set<InstanceType<Subclass>> {

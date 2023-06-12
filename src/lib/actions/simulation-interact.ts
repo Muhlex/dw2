@@ -1,18 +1,18 @@
 import { get } from 'svelte/store';
 import type { ActionReturn } from 'svelte/action';
 
-import options from '../options';
+import options from '../../options';
 
-import Vector2 from '../models/Vector2';
-import type Simulation from '../models/sim/Simulation';
-import type Entity from '../models/sim/entities/Entity';
+import Vector2 from '../../models/Vector2';
+import type Simulation from '../../models/sim/Simulation';
+import type Entity from '../../models/sim/entities/Entity';
 
 let $options = get(options);
 options.subscribe(value => $options = value);
 
 enum MouseButton { Primary, Middle, Secondary };
 
-export const interact = (node: HTMLElement, simulation: Simulation): ActionReturn => {
+export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 	type KeyboardActions = Record<KeyboardEvent["key"], () => void>;
 	const keys: { active: Set<KeyboardEvent["key"]>, actions: { up: KeyboardActions, down: KeyboardActions } } = {
 		active: new Set(),

@@ -7,7 +7,7 @@
 	import Boid from "../models/sim/entities/Boid";
 	import Attractor from "../models/sim/entities/Attractor";
 
-	import { interact } from "./simulation-actions";
+	import interact from "./actions/simulation-interact";
 
 	import BoidComponent from "./Boid.svelte";
 	import Arrow from "./Arrow.svelte";
