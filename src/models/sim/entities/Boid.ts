@@ -1,8 +1,10 @@
 import Entity from "./Entity";
 import Attractor from "./Attractor";
-import Vector2 from "./Vector2";
+import Vector2 from "../../Vector2";
 
 export default class Boid extends Entity {
+	static readonly className = "Boid";
+
 	velocity: Vector2;
 
 	color: string;
@@ -48,7 +50,7 @@ export default class Boid extends Entity {
 		const visibleVelocitiesMean = new Vector2();
 		let visibleCount = 0;
 
-		for (const other of this.simulation.getEntitiesOfClass(Boid)) {
+		for (const other of this.simulation.entities.get(Boid)) {
 			if (this === other) continue;
 
 			const distanceSq = this.position.distanceSq(other.position);
@@ -91,7 +93,7 @@ export default class Boid extends Entity {
 
 		// Attractors
 		const attractionDelta = new Vector2();
-		for (const attractor of this.simulation.getEntitiesOfClass(Attractor)) {
+		for (const attractor of this.simulation.entities.get(Attractor)) {
 			const distanceSq = this.position.distanceSq(attractor.position);
 			if (distanceSq <= attractor.radius ** 2) {
 				const distance = Math.sqrt(distanceSq);

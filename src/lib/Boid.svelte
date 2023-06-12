@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type Boid from "../models/Boid";
+	import type Boid from "../models/sim/entities/Boid";
 
 	export let boid: Boid;
 </script>

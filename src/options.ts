@@ -1,22 +1,42 @@
 import { writable } from "svelte/store";
 import { pick } from "./util";
-import Boid from "./models/Boid";
-import Attractor from "./models/Attractor";
 
-const getBoidsConfig = () => pick(
-	new Boid(),
-	"color", "size",
-	"minSpeed", "maxSpeed",
-	"avoidRadius", "avoidFactor",
-	"visionRadius", "centeringFactor", "matchingFactor",
-	"edgeMargin", "edgeTurnFactor",
-);
+import Entity from "./models/sim/entities/Entity";
+import Boid from "./models/sim/entities/Boid";
+import Attractor from "./models/sim/entities/Attractor";
 
-const getAttractorsConfig = () => pick(new Attractor(), "radius", "strength", "inverse");
+class SimulationEntityDefaults {
+	getters = {
+		[Boid.className]: () => pick(new Boid(),
+			"color", "size",
+			"minSpeed", "maxSpeed",
+			"avoidRadius", "avoidFactor",
+			"visionRadius", "centeringFactor", "matchingFactor",
+			"edgeMargin", "edgeTurnFactor"
+		),
+		[Attractor.className]: () => pick(new Attractor(), "radius", "strength", "inverse"),
+	}
+
+	values = {
+		[Boid.className]: this.getters.Boid(),
+		[Attractor.className]: this.getters.Attractor(),
+	}
+
+	get(constructor: typeof Entity) {
+		return this.values[constructor.className as (keyof typeof this.values)] || {};
+	}
+
+	reset(constructor: typeof Entity) {
+		const key = constructor.className as (keyof typeof this.values);
+		const getter = this.getters[key];
+		(this.values[key] as ReturnType<typeof getter>) = getter();
+		options.update(o => o);
+	}
+}
 
 export type SimulationOptions = {
+	targetTps: number;
 	render: {
-		targetTps: number;
 		debug: {
 			avoidanceDelta: boolean;
 			centeringDelta: boolean;
@@ -27,13 +47,15 @@ export type SimulationOptions = {
 			edgeMargin: boolean;
 		};
 	};
-	boids: ReturnType<typeof getBoidsConfig>;
-	attractors: ReturnType<typeof getAttractorsConfig>;
+	spawn: {
+		constructor: typeof Entity;
+	};
+	defaults: SimulationEntityDefaults,
 };
 
 const options = writable<SimulationOptions>({
+	targetTps: 60,
 	render: {
-		targetTps: 60,
 		debug: {
 			avoidanceDelta: false,
 			centeringDelta: false,
@@ -44,14 +66,7 @@ const options = writable<SimulationOptions>({
 			edgeMargin: false,
 		},
 	},
-	boids: getBoidsConfig(),
-	attractors: getAttractorsConfig(),
+	spawn: { constructor: Boid },
+	defaults: new SimulationEntityDefaults(),
 });
 export default options;
-
-export const resetBoids = () => {
-	options.update((options) => ({ ...options, boids: getBoidsConfig() }));
-};
-export const resetAttractors = () => {
-	options.update((options) => ({ ...options, attractors: getAttractorsConfig() }));
-};

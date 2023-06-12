@@ -1,6 +1,6 @@
 import { writable, type Updater, type Subscriber } from "svelte/store";
 
-export default class Reactive {
+export default class Store {
 	#store = writable(this);
 
 	// Expose store's methods on our class instances:

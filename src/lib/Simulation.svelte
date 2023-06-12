@@ -3,9 +3,9 @@
 	import options from "../options";
 
 	import Vector2 from "../models/Vector2";
-	import Simulation from "../models/Simulation";
-	import Boid from "../models/Boid";
-	import Attractor from "../models/Attractor";
+	import Simulation from "../models/sim/Simulation";
+	import Boid from "../models/sim/entities/Boid";
+	import Attractor from "../models/sim/entities/Attractor";
 
 	import { interact } from "./simulation-actions";
 
@@ -15,8 +15,8 @@
 	import Rect from "./Rect.svelte";
 
 	export let simulation: Simulation;
-	$: boids = $simulation.getEntitiesOfClass(Boid);
-	$: attractors = $simulation.getEntitiesOfClass(Attractor);
+	$: boids = [...$simulation.entities.get(Boid)];
+	$: attractors = [...$simulation.entities.get(Attractor)];
 
 	let animationFrameRequestID = -1;
 	let lastFrameTime = performance.now();
@@ -29,7 +29,7 @@
 		lazyIntervalID: -1,
 	}
 	const maxTicksPerFrame = 8;
-	$: targetTickInterval = 1000 / $options.render.targetTps;
+	$: targetTickInterval = 1000 / $options.targetTps;
 	$: maxTickDelay = targetTickInterval * maxTicksPerFrame;
 	const onAnimationFrame = (time: number) => {
 		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
@@ -72,9 +72,9 @@
 	use:interact={simulation}
 >
 	<div class="stats">
-		<span>FPS {(1000 / measure.frame.timeLazy).toFixed(0)}</span>
-		<span>TPS {(1000 / measure.tick.timeLazy).toFixed(0)}</span>
-		<span>Boids {boids.length}</span>
+		<span>FPS {(1000 / (measure.frame.timeLazy || Infinity)).toFixed(0)}</span>
+		<span>TPS {(1000 / (measure.tick.timeLazy || Infinity)).toFixed(0)}</span>
+		<span>Entities {$simulation.entities.size} (Boids {boids.length})</span>
 	</div>
 	{#each attractors as attractor (attractor)}
 		{@const hsl = `\
@@ -170,7 +170,8 @@
 		font-weight: bold;
 		font-size: 0.75em;
 		text-shadow: 0 0 0.25em black, 0 0 1em black;
-		opacity: 0.5;
+		opacity: 0.75;
+		user-select: none;
 
 		display: flex;
 		flex-direction: column;
