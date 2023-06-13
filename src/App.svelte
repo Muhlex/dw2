@@ -9,12 +9,16 @@
 
 	import SimulationComponent from "./lib/Simulation.svelte";
 
-	const simulation = new Simulation();
-	simulation.spawnGrid((x, y) => new Boid({ x, y, ...$options.defaults.get($options.spawn.constructor) }), 5, 5);
-
 	$: placeable = [Boid, Attractor];
 	$: gridSize = { x: 5, y: 5 };
 	$: renderDebugKeys = Object.keys($options.render.debug) as (keyof typeof $options.render.debug)[];
+
+	const simulation = new Simulation();
+	simulation.spawnGrid((x, y) => {
+		return new Boid({
+			x, y, ...$options.entities.defaults.get($options.entities.selected.constructor)
+		});
+	}, 5, 5);
 </script>
 
 <main>
@@ -27,17 +31,17 @@
 				<legend>Entities</legend>
 				<fieldset>
 					<legend>Class</legend>
-					<select bind:value={$options.spawn.constructor}>
+					<select bind:value={$options.entities.selected.constructor}>
 						{#each placeable as constructor}
 							<option value={constructor}>{constructor.className}</option>
 						{/each}
 					</select>
-					<button on:click={() => simulation.killAllOfClass($options.spawn.constructor)}>
+					<button on:click={() => simulation.killAllOfClass($options.entities.selected.constructor)}>
 						🗑️ Clear
 					</button>
 				</fieldset>
 				<fieldset>
-					<legend>Grid ({$options.spawn.constructor.className})</legend>
+					<legend>Grid ({$options.entities.selected.constructor.className})</legend>
 					<div style:display=flex style:gap=1em>
 						<label class="row">
 							Cols: <input type="number" bind:value={gridSize.x} min=1 max=15 size=2 />
@@ -48,7 +52,9 @@
 					</div>
 					<button on:click={() => {
 						simulation.spawnGrid((x, y) => {
-							return new $options.spawn.constructor({ x, y, ...$options.defaults.get($options.spawn.constructor) });
+							return new $options.entities.selected.constructor({
+								x, y, ...$options.entities.defaults.get($options.entities.selected.constructor)
+							});
 						}, gridSize.x, gridSize.y);
 					}}>
 						🔢️ Spawn Grid
@@ -104,72 +110,72 @@
 						color:
 						<input
 							type="color"
-							value={ColorTranslator.toHEX($options.defaults.values.Boid.color)}
-							on:change={({ currentTarget }) => $options.defaults.values.Boid.color = currentTarget.value}
+							value={ColorTranslator.toHEX($options.entities.defaults.values.Boid.color)}
+							on:change={({ currentTarget }) => $options.entities.defaults.values.Boid.color = currentTarget.value}
 						/>
 					</label>
 					<label>
-						size: {$options.defaults.values.Boid.size}
-						<input type="range" bind:value={$options.defaults.values.Boid.size} min=1 max=100 step=1 />
+						size: {$options.entities.defaults.values.Boid.size}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.size} min=1 max=100 step=1 />
 					</label>
 				</fieldset>
 				<fieldset>
 					<legend>Speed</legend>
 					<label>
-						min: {$options.defaults.values.Boid.minSpeed.toFixed(1)}
-						<input type="range" bind:value={$options.defaults.values.Boid.minSpeed} min=0 max=10 step=0.1 />
+						min: {$options.entities.defaults.values.Boid.minSpeed.toFixed(1)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.minSpeed} min=0 max=10 step=0.1 />
 					</label>
 					<label>
-						max: {$options.defaults.values.Boid.maxSpeed.toFixed(1)}
-						<input type="range" bind:value={$options.defaults.values.Boid.maxSpeed} min=0 max=25 step=0.1 />
+						max: {$options.entities.defaults.values.Boid.maxSpeed.toFixed(1)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.maxSpeed} min=0 max=25 step=0.1 />
 					</label>
 				</fieldset>
 				<fieldset>
 					<legend>Avoidance</legend>
 					<label>
-						radius: {$options.defaults.values.Boid.avoidRadius}
-						<input type="range" bind:value={$options.defaults.values.Boid.avoidRadius} min=0 max=250 step=1 />
+						radius: {$options.entities.defaults.values.Boid.avoidRadius}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.avoidRadius} min=0 max=250 step=1 />
 					</label>
 					<label>
-						factor: {$options.defaults.values.Boid.avoidFactor.toFixed(3)}
-						<input type="range" bind:value={$options.defaults.values.Boid.avoidFactor} min=0 max=0.1 step=0.001 />
+						factor: {$options.entities.defaults.values.Boid.avoidFactor.toFixed(3)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.avoidFactor} min=0 max=0.1 step=0.001 />
 					</label>
 				</fieldset>
 				<fieldset>
 					<legend>Vision</legend>
 					<label>
-						radius: {$options.defaults.values.Boid.visionRadius}
-						<input type="range" bind:value={$options.defaults.values.Boid.visionRadius} min=0 max=500 step=1 />
+						radius: {$options.entities.defaults.values.Boid.visionRadius}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.visionRadius} min=0 max=500 step=1 />
 					</label>
 					<label>
-						centeringFactor: {$options.defaults.values.Boid.centeringFactor.toFixed(4)}
-						<input type="range" bind:value={$options.defaults.values.Boid.centeringFactor} min=0 max=0.005 step=0.0001 />
+						centeringFactor: {$options.entities.defaults.values.Boid.centeringFactor.toFixed(4)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.centeringFactor} min=0 max=0.005 step=0.0001 />
 					</label>
 					<label>
-						matchingFactor: {$options.defaults.values.Boid.matchingFactor.toFixed(3)}
-						<input type="range" bind:value={$options.defaults.values.Boid.matchingFactor} min=0 max=0.5 step=0.001 />
+						matchingFactor: {$options.entities.defaults.values.Boid.matchingFactor.toFixed(3)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.matchingFactor} min=0 max=0.5 step=0.001 />
 					</label>
 				</fieldset>
 				<fieldset>
 					<legend>Edge Avoidance</legend>
 					<label>
-						margin: {$options.defaults.values.Boid.edgeMargin}
+						margin: {$options.entities.defaults.values.Boid.edgeMargin}
 						<input
-							type="range" bind:value={$options.defaults.values.Boid.edgeMargin}
+							type="range" bind:value={$options.entities.defaults.values.Boid.edgeMargin}
 							min=0 max={Math.min($simulation.world.size.x, $simulation.world.size.y) / 2} step=1
 						/>
 					</label>
 					<label>
-						turnFactor: {$options.defaults.values.Boid.edgeTurnFactor.toFixed(2)}
-						<input type="range" bind:value={$options.defaults.values.Boid.edgeTurnFactor} min=0 max=1 step=0.01 />
+						turnFactor: {$options.entities.defaults.values.Boid.edgeTurnFactor.toFixed(2)}
+						<input type="range" bind:value={$options.entities.defaults.values.Boid.edgeTurnFactor} min=0 max=1 step=0.01 />
 					</label>
 				</fieldset>
 				<button on:click={() => {
-					simulation.entities.get(Boid).forEach(boid => Object.assign(boid, $options.defaults.values.Boid))
+					simulation.entities.get(Boid).forEach(boid => Object.assign(boid, $options.entities.defaults.values.Boid))
 				}}>
 					✔️ Apply to All
 				</button>
-				<button on:click={() => $options.defaults.reset(Boid)} style:font-size=0.75em>
+				<button on:click={() => $options.entities.defaults.reset(Boid)} style:font-size=0.75em>
 					🔄 Reset
 				</button>
 			</div>
@@ -178,24 +184,24 @@
 				<fieldset>
 					<legend>Attraction / Repulsion</legend>
 					<label>
-						radius: {$options.defaults.values.Attractor.radius}
-						<input type="range" bind:value={$options.defaults.values.Attractor.radius} min=20 max=2000 step=5 />
+						radius: {$options.entities.defaults.values.Attractor.radius}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.radius} min=20 max=2000 step=5 />
 					</label>
 					<label>
-						strength: {$options.defaults.values.Attractor.strength.toFixed(4)}
-						<input type="range" bind:value={$options.defaults.values.Attractor.strength} min=-0.004 max=0.004 step=0.0001 />
+						strength: {$options.entities.defaults.values.Attractor.strength.toFixed(4)}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.strength} min=-0.004 max=0.004 step=0.0001 />
 					</label>
 					<label class="row">
-						<input type="checkbox" bind:checked={$options.defaults.values.Attractor.inverse}>
+						<input type="checkbox" bind:checked={$options.entities.defaults.values.Attractor.inverse}>
 						inverse
 					</label>
 				</fieldset>
 				<button on:click={() => {
-					simulation.entities.get(Attractor).forEach(attractor => Object.assign(attractor, $options.defaults.values.Attractor))
+					simulation.entities.get(Attractor).forEach(attractor => Object.assign(attractor, $options.entities.defaults.values.Attractor))
 				}}>
 					✔️ Apply to All
 				</button>
-				<button on:click={() => $options.defaults.reset(Attractor)} style:font-size=0.75em>🔄 Reset</button>
+				<button on:click={() => $options.entities.defaults.reset(Attractor)} style:font-size=0.75em>🔄 Reset</button>
 			</div>
 		</div>
 	</div>

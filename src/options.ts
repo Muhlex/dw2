@@ -47,10 +47,12 @@ export type SimulationOptions = {
 			edgeMargin: boolean;
 		};
 	};
-	spawn: {
-		constructor: typeof Entity;
+	entities: {
+		selected: {
+			constructor: typeof Entity;
+		};
+		defaults: SimulationEntityDefaults;
 	};
-	defaults: SimulationEntityDefaults,
 };
 
 const options = writable<SimulationOptions>({
@@ -66,7 +68,9 @@ const options = writable<SimulationOptions>({
 			edgeMargin: false,
 		},
 	},
-	spawn: { constructor: Boid },
-	defaults: new SimulationEntityDefaults(),
+	entities: {
+		selected: { constructor: Boid },
+		defaults: new SimulationEntityDefaults(),
+	}
 });
 export default options;

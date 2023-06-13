@@ -5,7 +5,6 @@ import options from '../../options';
 
 import Vector2 from '../../models/Vector2';
 import type Simulation from '../../models/sim/Simulation';
-import type Entity from '../../models/sim/entities/Entity';
 
 let $options = get(options);
 options.subscribe(value => $options = value);
@@ -50,13 +49,17 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		keys.active.clear();
 	};
 
-	const onPointerdown = ({ currentTarget, clientX, clientY, button }: PointerEvent) => {
-		const { x, y, width, height } = (currentTarget as typeof node).getBoundingClientRect();
-		const offset = new Vector2(clientX - x, clientY - y);
-		const coords = new Vector2(
+	const screenToWorldPos = (x: number, y: number) => {
+		const { left, top, width, height } = node.getBoundingClientRect();
+		const offset = new Vector2(x - left, y - top);
+		return new Vector2(
 			offset.x / width * simulation.world.size.x,
 			offset.y / height * simulation.world.size.y,
 		);
+	}
+
+	const onPointerdown = ({ clientX, clientY, button }: PointerEvent) => {
+		const coords = screenToWorldPos(clientX, clientY);
 
 		let amount = 0;
 		if (keys.active.has("Shift")) amount += 10;
@@ -64,24 +67,28 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		if (keys.active.has("Alt")) amount += 500;
 		amount ||= 1;
 
+		const entOptions = $options.entities;
+
 		switch (button) {
 			case MouseButton.Primary:
-
+				const constructorOptions = {
+					x: coords.x, y: coords.y,
+					...entOptions.defaults.get(entOptions.selected.constructor),
+				};
 				for (let i = 0; i < amount; i++) {
-					simulation.spawn(new $options.spawn.constructor({ x: coords.x, y: coords.y, ...$options.defaults.get($options.spawn.constructor) }))
+					simulation.spawn(new entOptions.selected.constructor(constructorOptions));
 				}
+
 				break;
 
 			case MouseButton.Secondary:
-				for (let i = 0; i < amount; i++) {
-					const closest: { entity?: Entity, distanceSq: number } = { distanceSq: Infinity };
-					for (const entity of simulation.entities.values()) {
-						const distanceSq = coords.distanceSq(entity.position);
-						if (distanceSq < closest.distanceSq) {
-							Object.assign(closest, { entity, distanceSq });
-						}
-					}
-					if (closest.entity) simulation.kill(closest.entity);
+				const targets = [...simulation.entities.get(entOptions.selected.constructor)]
+					.map(entity => ({ entity, distanceSq: coords.distanceSq(entity.position) }))
+					.sort((a, b) => a.distanceSq - b.distanceSq)
+					.slice(0, amount);
+
+				for (const { entity } of targets) {
+					simulation.kill(entity);
 				}
 
 				break;
