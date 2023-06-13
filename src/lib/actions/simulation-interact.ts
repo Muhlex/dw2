@@ -11,13 +11,14 @@ let $options = get(options);
 options.subscribe(value => $options = value);
 
 enum MouseButton { Primary, Middle, Secondary };
+type KeyboardActions = Record<KeyboardEvent["key"], () => void>;
 
 export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
-	type KeyboardActions = Record<KeyboardEvent["key"], () => void>;
 	const keys: { active: Set<KeyboardEvent["key"]>, actions: { up: KeyboardActions, down: KeyboardActions } } = {
 		active: new Set(),
 		actions: {
 			down: {
+				// Number keys 0 to 10 for controlling tickrate
 				...Object.fromEntries(Array(10).fill(undefined).map((_, index) => [index, () => {
 					options.update(options => ({ ...options, targetTps: index * 10 }));
 				}]))
@@ -26,14 +27,23 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		}
 	};
 
-	const onKeydown = ({ key }: KeyboardEvent) => {
+	const getTargetConsumesKey = (target: EventTarget) => {
+		const tagName = target && "tagName" in target && target.tagName as string || undefined;
+		return tagName ? ["INPUT", "TEXTAREA", "SELECT", "OPTION", "BUTTON"].includes(tagName) : false;
+	};
+
+	const onKeydown = ({ key, target }: KeyboardEvent) => {
 		if (keys.active.has(key)) return;
 		keys.active.add(key);
+
+		if (target && getTargetConsumesKey(target)) return;
 		keys.actions.down[key]?.();
 	};
-	const onKeyup = ({ key }: KeyboardEvent) => {
+	const onKeyup = ({ key, target }: KeyboardEvent) => {
 		if (!keys.active.has(key)) return;
 		keys.active.delete(key);
+
+		if (target && getTargetConsumesKey(target)) return;
 		keys.actions.up[key]?.();
 	};
 	const onBlur = () => {
