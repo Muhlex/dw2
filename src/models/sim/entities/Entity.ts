@@ -8,8 +8,14 @@ export default class Entity {
 	position: Vector2;
 
 	constructor(options: { position?: Vector2, x?: number, y?: number, simulation?: Simulation } = {}) {
-		this.simulation = options.simulation;
 		this.position = options.position || new Vector2(options.x, options.y);
+		this.simulation = options.simulation;
+	}
+
+	applyOptions(options: Record<string, unknown>) {
+		const clone = structuredClone(options);
+		delete clone.x, delete clone.y;
+		Object.assign(this, clone);
 	}
 
 	setSimulation(simulation: Simulation) {

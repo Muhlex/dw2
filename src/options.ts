@@ -14,7 +14,7 @@ class SimulationEntityDefaults {
 			"visionRadius", "centeringFactor", "matchingFactor",
 			"edgeMargin", "edgeTurnFactor"
 		),
-		[Attractor.className]: () => pick(new Attractor(), "radius", "strength", "inverse"),
+		[Attractor.className]: () => pick(new Attractor(), "radius", "strength"),
 	}
 
 	values = {

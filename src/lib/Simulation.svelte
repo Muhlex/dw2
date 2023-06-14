@@ -10,6 +10,7 @@
 	import interact from "./actions/simulation-interact";
 
 	import BoidComponent from "./Boid.svelte";
+	import AttractorComponent from "./Attractor.svelte";
 	import Arrow from "./Arrow.svelte";
 	import Circle from "./Circle.svelte";
 	import Rect from "./Rect.svelte";
@@ -77,24 +78,7 @@
 		<span>Entities {$simulation.entities.size} (Boids {boids.length})</span>
 	</div>
 	{#each attractors as attractor (attractor)}
-		{@const hsl = `\
-			${attractor.strength < 0 ? "5" : "215"},\
-			100%,\
-			${100 - Math.min(50, Math.abs(attractor.strength) / 0.008 * 100)}%\
-			`
-		}
-		<Circle
-			fill color={
-				attractor.inverse
-				? `radial-gradient(closest-side, transparent, hsl(${hsl}, 0.75))`
-				: `radial-gradient(closest-side, hsl(${hsl}, 0.75), transparent)`
-			}
-			position={attractor.position} radius={attractor.radius}
-		/>
-		<Circle
-			fill color="hsl({hsl})"
-			position={attractor.position} radius={attractor.radius / 8}
-		/>
+		<AttractorComponent {attractor} />
 	{/each}
 	{#each boids as boid (boid)}
 		<BoidComponent {boid} />

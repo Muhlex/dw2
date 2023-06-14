@@ -4,7 +4,9 @@ import type { ActionReturn } from 'svelte/action';
 import options from '../../options';
 
 import Vector2 from '../../models/Vector2';
-import type Simulation from '../../models/sim/Simulation';
+import Simulation from '../../models/sim/Simulation';
+import Boid from '../../models/sim/entities/Boid';
+import Attractor from '../../models/sim/entities/Attractor';
 
 let $options = get(options);
 options.subscribe(value => $options = value);
@@ -20,6 +22,13 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 				// Number keys 0 to 10 for controlling tickrate
 				...Object.fromEntries(Array(10).fill(undefined).map((_, index) => [index, () => {
 					options.update(options => ({ ...options, targetTps: index * 10 }));
+				}])),
+				// Starting letters of classes for quick select
+				...Object.fromEntries([Boid, Attractor].map(ctor => [ctor.className[0].toLowerCase(), () => {
+					options.update(options => {
+						options.entities.selected.constructor = ctor;
+						return options;
+					});
 				}]))
 			},
 			up: {},

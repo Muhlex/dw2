@@ -34,8 +34,7 @@ export default class Boid extends Entity {
 		super(options);
 		this.velocity = new Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1);
 		this.color = `hsl(${Math.random()}turn 100% 70%)`;
-
-		Object.assign(this, options);
+		this.applyOptions(options);
 	}
 
 	tick() {
@@ -92,21 +91,10 @@ export default class Boid extends Entity {
 		this.debug.avoidanceDelta = avoidanceDelta;
 
 		// Attractors
-		const attractionDelta = new Vector2();
+		this.debug.attractionDelta.multiply(0);
 		for (const attractor of this.simulation.entities.get(Attractor)) {
-			const distanceSq = this.position.distanceSq(attractor.position);
-			if (distanceSq <= attractor.radius ** 2) {
-				const distance = Math.sqrt(distanceSq);
-				const delta = attractor.position.copy().subtract(this.position);
-				if (!attractor.inverse) {
-					delta.divide(Math.max(distance, 1)).multiply(attractor.radius - distance);
-				}
-				attractionDelta.add(delta.multiply(attractor.strength));
-			}
+			this.debug.attractionDelta.add(attractor.attract(this));
 		}
-
-		this.velocity.add(attractionDelta);
-		this.debug.attractionDelta = attractionDelta;
 
 		// World
 		if (this.position.x < this.edgeMargin)

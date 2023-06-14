@@ -75,7 +75,7 @@
 				<legend>Render</legend>
 				<div
 					style:display="grid"
-					style:grid-template-columns="1fr 1fr 1fr"
+					style:grid-template-columns="1fr 1fr"
 					style:column-gap="1em"
 				>
 					{#each renderDebugKeys as option}
@@ -171,7 +171,7 @@
 					</label>
 				</fieldset>
 				<button on:click={() => {
-					simulation.entities.get(Boid).forEach(boid => Object.assign(boid, $options.entities.defaults.values.Boid))
+					simulation.entities.get(Boid).forEach(boid => boid.applyOptions($options.entities.defaults.values.Boid))
 				}}>
 					✔️ Apply to All
 				</button>
@@ -184,20 +184,24 @@
 				<fieldset>
 					<legend>Attraction / Repulsion</legend>
 					<label>
-						radius: {$options.entities.defaults.values.Attractor.radius}
-						<input type="range" bind:value={$options.entities.defaults.values.Attractor.radius} min=20 max=2000 step=5 />
+						radius start: {$options.entities.defaults.values.Attractor.radius.start}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.radius.start} min=0 max=2000 step=5 />
 					</label>
 					<label>
-						strength: {$options.entities.defaults.values.Attractor.strength.toFixed(4)}
-						<input type="range" bind:value={$options.entities.defaults.values.Attractor.strength} min=-0.004 max=0.004 step=0.0001 />
+						radius end: {$options.entities.defaults.values.Attractor.radius.end}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.radius.end} min=0 max=2000 step=5 />
 					</label>
-					<label class="row">
-						<input type="checkbox" bind:checked={$options.entities.defaults.values.Attractor.inverse}>
-						inverse
+					<label>
+						strength start: {$options.entities.defaults.values.Attractor.strength.start.toFixed(2)}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.strength.start} min=-2 max=2 step=0.05 />
+					</label>
+					<label>
+						strength end: {$options.entities.defaults.values.Attractor.strength.end.toFixed(2)}
+						<input type="range" bind:value={$options.entities.defaults.values.Attractor.strength.end} min=-2 max=2 step=0.05 />
 					</label>
 				</fieldset>
 				<button on:click={() => {
-					simulation.entities.get(Attractor).forEach(attractor => Object.assign(attractor, $options.entities.defaults.values.Attractor))
+					simulation.entities.get(Attractor).forEach(attractor => attractor.applyOptions($options.entities.defaults.values.Attractor))
 				}}>
 					✔️ Apply to All
 				</button>
@@ -231,6 +235,9 @@
 	.controls {
 		display: contents;
 	}
+	.controls > * {
+		z-index: 1;
+	}
 
 	.settings {
 		grid-area: settings;
@@ -242,8 +249,12 @@
 
 	.params {
 		grid-area: params;
+		margin: -1em;
+		padding: 1em;
+		margin-left: 0;
+		padding-left: 0;
+		min-height: calc(100% + 2em);
 		height: 0;
-		min-height: 100%;
 		overflow-y: auto;
 		min-width: clamp(200px, 25vw, 400px);
 

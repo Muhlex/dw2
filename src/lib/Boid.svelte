@@ -2,15 +2,17 @@
 	import type Boid from "../models/sim/entities/Boid";
 
 	export let boid: Boid;
+
+	$: ({ position: { x, y }, velocity: { angle }, color, size } = boid);
 </script>
 
 <div
 	class="boid"
-	style:--x={boid.position.x}
-	style:--y={boid.position.y}
-	style:--angle={boid.velocity.angle}
-	style:--color={boid.color}
-	style:--size={boid.size}
+	style:--x={x}
+	style:--y={y}
+	style:--angle={angle}
+	style:--color={color}
+	style:--size={size}
 >
 	<div class="boid-graphic" />
 </div>
