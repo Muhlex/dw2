@@ -51,6 +51,8 @@
 			measure.tick.time += (lastTickDelta - measure.tick.time) / measure.tick.smooth;
 			lastTickTime = tickTime;
 		}
+
+		simulation.frame(delta / targetTickInterval);
 	}
 	onMount(() => {
 		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);

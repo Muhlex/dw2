@@ -30,14 +30,27 @@ export default class Boid extends Entity {
 		attractionDelta: new Vector2(),
 	};
 
+	protected lastTick;
+	interpolated;
+
 	constructor(options: ConstructorParameters<typeof Entity>[0] & Partial<Boid> = {}) {
 		super(options);
 		this.velocity = new Vector2(Math.random() * 2 - 1, Math.random() * 2 - 1);
 		this.color = `hsl(${Math.random()}turn 100% 70%)`;
 		this.applyOptions(options);
+
+		this.lastTick = this.cloneState();
+		this.interpolated = { values: Boid.prototype.interpolate.call(this, 0, 1), available: false };
 	}
 
-	tick() {
+	interpolate(t: number, u: number) {
+		return {
+			position: this.position.copy().lerp(this.lastTick.position, u),
+			velocity: this.velocity.copy().lerp(this.lastTick.velocity, u),
+		}
+	}
+
+	onTick() {
 		if (!this.simulation) return;
 
 		// Other Boids

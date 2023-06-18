@@ -3,7 +3,7 @@
 
 	export let attractor: Attractor;
 
-	const maxDisplayedStrength = 1.5;
+	const maxDisplayedStrength = 2;
 
 	// destructuring here leaves us with updates only when the values are actually different
 	$: ({ radius: { start: startRadius, end: endRadius } } = attractor);
@@ -18,7 +18,7 @@
 ${strength < 0 ? "350" : "230"},\
 ${strength === 0 ? 0 : 100}%,\
 55%,\
-${Math.abs(strength) / maxDisplayedStrength * 0.8 + 0.1})`,
+${Math.min(Math.abs(strength) / maxDisplayedStrength * 0.8, 0.8) + 0.1})`,
 	}));
 </script>
 

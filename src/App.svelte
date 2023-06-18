@@ -68,7 +68,7 @@
 				<legend>Simulation</legend>
 				<label>
 					TPS Target: {$options.targetTps}
-					<input type="range" bind:value={$options.targetTps} min=0 max=400 />
+					<input type="range" bind:value={$options.targetTps} min=0 max=200 />
 				</label>
 			</fieldset>
 			<fieldset>

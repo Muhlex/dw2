@@ -43,7 +43,16 @@ export default class Simulation extends Store {
 
 	tick() {
 		for (const entity of this.entities.values()) {
-			entity.tick();
+			entity.onBeforeTick();
+			entity.onTick();
+		}
+		this.notify();
+	}
+
+	frame(interpFrac: number) {
+		const reverseInterpFrac = 1 - interpFrac;
+		for (const entity of this.entities.values()) {
+			entity.onBeforeFrame(interpFrac, reverseInterpFrac);
 		}
 		this.notify();
 	}

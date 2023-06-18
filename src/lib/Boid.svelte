@@ -3,19 +3,23 @@
 
 	export let boid: Boid;
 
-	$: ({ position: { x, y }, velocity: { angle }, color, size } = boid);
+	$: render = boid.interpolated.available;
+	$: ({ position: { x, y }, velocity: { angle } } = boid.interpolated.values);
+	$: ({ color, size } = boid);
 </script>
 
-<div
-	class="boid"
-	style:--x={x}
-	style:--y={y}
-	style:--angle={angle}
-	style:--color={color}
-	style:--size={size}
->
-	<div class="boid-graphic" />
-</div>
+{#if render}
+	<div
+		class="boid"
+		style:--x={x}
+		style:--y={y}
+		style:--angle={angle}
+		style:--color={color}
+		style:--size={size}
+	>
+		<div class="boid-graphic" />
+	</div>
+{/if}
 
 <style>
 	.boid {

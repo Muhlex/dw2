@@ -65,6 +65,12 @@ export default class Vector2 {
 		return this;
 	}
 
+	lerp(vector: Vector2, alpha: number) {
+		this.x += (vector.x - this.x) * alpha;
+		this.y += (vector.y - this.y) * alpha;
+		return this;
+	}
+
 	normalize() {
 		return this.divide(this.length || 1);
 	}
