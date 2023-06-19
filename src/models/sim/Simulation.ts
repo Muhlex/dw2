@@ -43,8 +43,7 @@ export default class Simulation extends Store {
 
 	tick() {
 		for (const entity of this.entities.values()) {
-			entity.onBeforeTick();
-			entity.onTick();
+			entity.tick();
 		}
 		this.notify();
 	}
@@ -52,7 +51,7 @@ export default class Simulation extends Store {
 	frame(interpFrac: number) {
 		const reverseInterpFrac = 1 - interpFrac;
 		for (const entity of this.entities.values()) {
-			entity.onBeforeFrame(interpFrac, reverseInterpFrac);
+			entity.frame(interpFrac, reverseInterpFrac);
 		}
 		this.notify();
 	}

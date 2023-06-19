@@ -23,9 +23,21 @@ export default class Entity {
 	}
 
 	applyOptions(options: Record<string, unknown>) {
-		const clone = structuredClone(options);
-		delete clone.x, delete clone.y;
-		Object.assign(this, clone);
+		for (const key in options) {
+			if (!(key in this)) continue;
+
+			const option = options[key];
+			const k = key as keyof this;
+			if (this[k] instanceof Vector2 && option instanceof Vector2) {
+				(this[k] as Vector2) = new Vector2(option.x, option.y);
+			} else if (typeof this[k] === typeof option) {
+				if (typeof this[k] === "object") {
+					(this[k] as unknown) = structuredClone(option);
+				} else {
+					(this[k] as unknown) = option;
+				}
+			}
+		}
 	}
 
 	protected cloneState() {
@@ -34,17 +46,21 @@ export default class Entity {
 	}
 
 	protected interpolate(t: number, u: number) {
-		return {}
+		return {};
 	}
 
-	onBeforeTick() {
+	tick() {
 		this.lastTick = this.cloneState();
 		this.interpolated.available = true;
+		this.onTick();
 	}
 
-	onTick() {}
+	protected onTick() {}
 
-	onBeforeFrame(t: number, u: number) {
+	frame(t: number, u: number) {
 		this.interpolated.values = this.interpolate(t, u);
+		this.onFrame();
 	}
+
+	protected onFrame() {}
 }

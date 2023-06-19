@@ -43,14 +43,14 @@ export default class Boid extends Entity {
 		this.interpolated = { values: Boid.prototype.interpolate.call(this, 0, 1), available: false };
 	}
 
-	interpolate(t: number, u: number) {
+	protected interpolate(t: number, u: number) {
 		return {
 			position: this.position.copy().lerp(this.lastTick.position, u),
 			velocity: this.velocity.copy().lerp(this.lastTick.velocity, u),
 		}
 	}
 
-	onTick() {
+	protected onTick() {
 		if (!this.simulation) return;
 
 		// Other Boids

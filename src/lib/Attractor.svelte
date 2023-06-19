@@ -37,10 +37,14 @@ ${Math.min(Math.abs(strength) / maxDisplayedStrength * 0.8, 0.8) + 0.1})`,
 <style>
 	.attractor {
 		position: absolute;
-		inset: 0;
+		top: 0;
+		left: 0;
+		width: 100%;
+		aspect-ratio: 1;
+
 		transform: translate(-50%, -50%)
 			translateX(calc(100% / var(--world-size-x) * var(--x)))
-			translateY(calc(100% / var(--world-size-y) * var(--y)));
+			translateY(calc(100% / var(--world-size-x) * var(--y)));
 
 		display: flex;
 		justify-content: center;
