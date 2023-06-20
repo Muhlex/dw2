@@ -1,5 +1,5 @@
 <script lang="ts">
-	import options from "../../options";
+	import options, { renderers } from "../../options";
 
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
@@ -9,7 +9,6 @@
 
 	$: placeable = [Boid, Attractor];
 	$: gridSize = { x: 5, y: 5 };
-	$: renderDebugKeys = Object.keys($options.render.debug) as (keyof typeof $options.render.debug)[];
 </script>
 
 <fieldset class="row">
@@ -52,25 +51,24 @@
 <fieldset>
 	<legend>Simulation</legend>
 	<label>
+		Renderer
+		<select bind:value={$options.renderer}>
+			{#each renderers as renderer}
+				<option value={renderer}>{renderer.name}</option>
+			{/each}
+		</select>
+	</label>
+	<label>
 		TPS Target: {$options.targetTps}
 		<input type="range" bind:value={$options.targetTps} min=0 max=200 />
 	</label>
 </fieldset>
-<fieldset>
-	<legend>Render</legend>
-	<div
-		style:display="grid"
-		style:grid-template-columns="1fr 1fr"
-		style:column-gap="1em"
-	>
-		{#each renderDebugKeys as option}
-			<label class="row">
-				<input type="checkbox" bind:checked={$options.render.debug[option]}>
-				{option}
-			</label>
-		{/each}
-	</div>
-</fieldset>
+{#if $options.renderer.component}
+	<fieldset>
+		<legend>Renderer Options ({$options.renderer.name})</legend>
+		<svelte:component this={$options.renderer.controls} />
+	</fieldset>
+{/if}
 
 <style>
 		fieldset {

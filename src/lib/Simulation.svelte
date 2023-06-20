@@ -2,22 +2,11 @@
 	import { onMount, onDestroy } from "svelte";
 	import options from "../options";
 
-	import Vector2 from "../models/Vector2";
 	import Simulation from "../models/sim/Simulation";
-	import Boid from "../models/sim/entities/Boid";
-	import Attractor from "../models/sim/entities/Attractor";
 
 	import interact from "./actions/simulation-interact";
 
-	import BoidComponent from "./Boid.svelte";
-	import AttractorComponent from "./Attractor.svelte";
-	import Arrow from "./Arrow.svelte";
-	import Circle from "./Circle.svelte";
-	import Rect from "./Rect.svelte";
-
 	export let simulation: Simulation;
-	$: boids = [...$simulation.entities.get(Boid)];
-	$: attractors = [...$simulation.entities.get(Attractor)];
 
 	let animationFrameRequestID = -1;
 	let lastFrameTime = performance.now();
@@ -77,56 +66,9 @@
 	<div class="stats">
 		<span>FPS {(1000 / (measure.frame.timeLazy || Infinity)).toFixed(0)}</span>
 		<span>TPS {(1000 / (measure.tick.timeLazy || Infinity)).toFixed(0)}</span>
-		<span>Entities {$simulation.entities.size} (Boids {boids.length})</span>
+		<span>Entities {$simulation.entities.size}</span>
 	</div>
-	{#each attractors as attractor (attractor)}
-		<AttractorComponent {attractor} />
-	{/each}
-	{#each boids as boid (boid)}
-		<BoidComponent {boid} />
-		{#if $options.render.debug.edgeMargin}
-			<Rect
-				color={boid.color}
-				opacity={0.25}
-				position={new Vector2(boid.edgeMargin, boid.edgeMargin)}
-				size={$simulation.world.size.copy().subtract(new Vector2(boid.edgeMargin * 2, boid.edgeMargin * 2))}
-			/>
-		{/if}
-		{#if $options.render.debug.avoidanceDelta}
-			<Arrow
-				color="red"
-				position={boid.position}
-				direction={boid.debug.avoidanceDelta.copy().multiply(1000)}
-			/>
-		{/if}
-		{#if $options.render.debug.centeringDelta}
-			<Arrow
-				color="lime"
-				position={boid.position}
-				direction={boid.debug.centeringDelta.copy().multiply(1000)}
-			/>
-		{/if}
-		{#if $options.render.debug.matchingDelta}
-			<Arrow
-				color="yellow"
-				position={boid.position}
-				direction={boid.debug.matchingDelta.copy().multiply(1000)}
-			/>
-		{/if}
-		{#if $options.render.debug.attractionDelta}
-			<Arrow
-				color="white"
-				position={boid.position}
-				direction={boid.debug.attractionDelta.copy().multiply(1000)}
-			/>
-		{/if}
-		{#if $options.render.debug.avoidRadius}
-			<Circle color="red" position={boid.position} radius={boid.avoidRadius} />
-		{/if}
-		{#if $options.render.debug.visionRadius}
-			<Circle color="white" position={boid.position} radius={boid.visionRadius} />
-		{/if}
-	{/each}
+	<svelte:component this={$options.renderer.component} {simulation} />
 </div>
 
 <style>
