@@ -34,6 +34,12 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 						},
 					}));
 				}])),
+				"h": () => {
+					options.update(options => ({
+						...options,
+						showControls: !options.showControls,
+					}));
+				},
 			},
 			up: {},
 		}

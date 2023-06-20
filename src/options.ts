@@ -36,6 +36,7 @@ export const getOptions = () => {
 	return {
 		targetTps: 60,
 		renderer: renderers[0],
+		showControls: true,
 		entities: {
 			selected,
 			Boid: defaults.getBoid(),

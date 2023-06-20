@@ -15,21 +15,23 @@
 	}, 5, 5);
 </script>
 
-<main>
+<main style:--controls-visible={Number($options.showControls)}>
 	<div class="simulation">
 		<SimulationComponent {simulation} />
 	</div>
-	<div class="controls">
-		<div class="settings">
-			<Settings {simulation} />
+	{#if $options.showControls}
+		<div class="controls">
+			<div class="settings">
+				<Settings {simulation} />
+			</div>
+			<div class="params">
+				<Parameters {simulation} />
+			</div>
+			<div class="presets">
+				<Presets {simulation} />
+			</div>
 		</div>
-		<div class="params">
-			<Parameters {simulation} />
-		</div>
-		<div class="presets">
-			<Presets {simulation} />
-		</div>
-	</div>
+	{/if}
 </main>
 
 <style>
@@ -43,7 +45,7 @@
 			"settings presets    params";
 		grid-template-columns: auto 1fr auto;
 		grid-template-rows: 1fr auto;
-		gap: 1em;
+		gap: calc(1em * var(--controls-visible));
 
 		overflow: hidden;
 	}
