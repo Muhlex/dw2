@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { pick } from "./util";
 
+import type Entity from "./models/sim/entities/Entity";
 import Boid from "./models/sim/entities/Boid";
 import Attractor from "./models/sim/entities/Attractor";
 
@@ -30,14 +31,17 @@ export const renderers = [{
 	controls: LEDControls,
 }];
 
-export const getOptions = () => ({
-	targetTps: 60,
-	renderer: renderers[0],
-	entities: {
-		selected: Boid,
-		Boid: defaults.getBoid(),
-		Attractor: defaults.getAttractor(),
+export const getOptions = () => {
+	const selected: typeof Entity = Boid;
+	return {
+		targetTps: 60,
+		renderer: renderers[0],
+		entities: {
+			selected,
+			Boid: defaults.getBoid(),
+			Attractor: defaults.getAttractor(),
+		}
 	}
-});
+};
 
 export default writable(getOptions());

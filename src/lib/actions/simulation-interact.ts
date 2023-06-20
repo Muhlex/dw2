@@ -26,11 +26,14 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 				}])),
 				// Starting letters of classes for quick select
 				...Object.fromEntries([Boid, Attractor].map(ctor => [ctor.className[0].toLowerCase(), () => {
-					options.update(options => {
-						options.entities.selected.constructor = ctor;
-						return options;
-					});
-				}]))
+					options.update(options => ({
+						...options,
+						entities: {
+							...options.entities,
+							selected: ctor,
+						},
+					}));
+				}])),
 			},
 			up: {},
 		}
@@ -120,7 +123,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 			case MouseButton.Primary:
 				const constructorOptions = {
 					x: coords.x, y: coords.y,
-					...$options.entities[$options.entities.selected.className],
+					...$options.entities[$options.entities.selected.className as keyof typeof $options.entities]
 				};
 				for (let i = 0; i < amount; i++) {
 					simulation.spawn(new $options.entities.selected(constructorOptions));
