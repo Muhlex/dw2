@@ -11,74 +11,94 @@
 	$: gridSize = { x: 5, y: 5 };
 </script>
 
-<fieldset class="row">
-	<legend>Entities</legend>
-	<fieldset>
-		<legend>Class</legend>
-		<select bind:value={$options.entities.selected}>
-			{#each placeable as constructor}
-				<option value={constructor}>{constructor.className}</option>
-			{/each}
-		</select>
-		<button on:click={() => simulation.killAllOfClass($options.entities.selected)}>
-			🗑️ Clear
+<h2>Settings</h2>
+<div class="form">
+	<div class="group">
+		<h3>Entities</h3>
+		<fieldset>
+			<legend>Class</legend>
+			<select bind:value={$options.entities.selected}>
+				{#each placeable as constructor}
+					<option value={constructor}>{constructor.className}</option>
+				{/each}
+			</select>
+			<button on:click={() => simulation.killAllOfClass($options.entities.selected)}>
+				🗑️ Clear
+			</button>
+		</fieldset>
+		<fieldset>
+			<legend>Grid ({$options.entities.selected.className})</legend>
+			<div class="row">
+				<label class="row">
+					Cols: <input type="number" bind:value={gridSize.x} min=1 max=15 size=2 />
+				</label>
+				<label class="row">
+					Rows: <input type="number" bind:value={gridSize.y} min=1 max=15 size=2 />
+				</label>
+			</div>
+			<button on:click={() => {
+				simulation.spawnGrid((x, y) => {
+					return new $options.entities.selected({
+						x, y, ...$options.entities[$options.entities.selected.className]
+					});
+				}, gridSize.x, gridSize.y);
+			}}>
+				🔢️ Spawn Grid
+			</button>
+		</fieldset>
+		<button on:click={() => simulation.killAll()}>
+			💀 Clear All
 		</button>
-	</fieldset>
-	<fieldset>
-		<legend>Grid ({$options.entities.selected.className})</legend>
-		<div style:display=flex style:gap=1em>
-			<label class="row">
-				Cols: <input type="number" bind:value={gridSize.x} min=1 max=15 size=2 />
-			</label>
-			<label class="row">
-				Rows: <input type="number" bind:value={gridSize.y} min=1 max=15 size=2 />
-			</label>
+	</div>
+	<div class="group">
+		<h3>Simulation</h3>
+		<label>
+			TPS Target: {$options.targetTps}
+			<input type="range" bind:value={$options.targetTps} min=0 max=200 />
+		</label>
+		<label>
+			Renderer
+			<select bind:value={$options.renderer}>
+				{#each renderers as renderer}
+					<option value={renderer}>{renderer.name}</option>
+				{/each}
+			</select>
+		</label>
+	</div>
+	{#if $options.renderer.component}
+		<div class="group">
+			<h3><i>{$options.renderer.name}</i> Renderer</h3>
+			<svelte:component this={$options.renderer.controls} />
 		</div>
-		<button on:click={() => {
-			simulation.spawnGrid((x, y) => {
-				return new $options.entities.selected({
-					x, y, ...$options.entities[$options.entities.selected.className]
-				});
-			}, gridSize.x, gridSize.y);
-		}}>
-			🔢️ Spawn Grid
-		</button>
-	</fieldset>
-	<button on:click={() => simulation.killAll()}>
-		💀 Clear All
-	</button>
-</fieldset>
-<fieldset>
-	<legend>Simulation</legend>
-	<label>
-		Renderer
-		<select bind:value={$options.renderer}>
-			{#each renderers as renderer}
-				<option value={renderer}>{renderer.name}</option>
-			{/each}
-		</select>
-	</label>
-	<label>
-		TPS Target: {$options.targetTps}
-		<input type="range" bind:value={$options.targetTps} min=0 max=200 />
-	</label>
-</fieldset>
-{#if $options.renderer.component}
-	<fieldset>
-		<legend>Renderer Options ({$options.renderer.name})</legend>
-		<svelte:component this={$options.renderer.controls} />
-	</fieldset>
-{/if}
+	{/if}
+</div>
 
 <style>
-		fieldset {
+	.form {
+		width: 100%;
+
+		display: flex;
+		flex-direction: column;
+		gap: 4em;
+		margin-top: 1em;
+	}
+
+	.group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+	}
+
+	.row {
+		display: flex;
+		gap: 0.25em;
+		flex-wrap: wrap;
+	}
+
+	fieldset {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25em;
-	}
-	fieldset.row {
-		flex-direction: row;
-		gap: 1em;
 	}
 
 	label {
@@ -86,6 +106,8 @@
 		flex-direction: column;
 	}
 	label.row {
+		flex-grow: 1;
+
 		flex-direction: row;
 		gap: 0.25em;
 	}

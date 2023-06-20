@@ -26,7 +26,7 @@
 			for (let x = colGap / 2; x < $simulation.world.size.x; x += colGap) {
 				for (const boid of boids) {
 					const maxDistance = boid.size * boidScale;
-					const distanceSq = boid.position.distanceSq(new Vector2(x, y));
+					const distanceSq = boid.interpolated.values.position.distanceSq(new Vector2(x, y));
 					if (distanceSq > maxDistance ** 2) continue;
 					const distance = Math.sqrt(distanceSq);
 					result[i] += (1 - distance / maxDistance) * boidIntensity;

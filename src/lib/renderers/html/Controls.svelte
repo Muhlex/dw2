@@ -1,18 +1,19 @@
 <script lang="ts">
 	import { renderOptions } from "./Renderer.svelte";
 
-	$: renderDebugKeys = Object.keys($renderOptions.debug) as (keyof typeof $renderOptions.debug)[];
+	$: debugKeys = Object.keys($renderOptions.debug) as (keyof typeof $renderOptions.debug)[];
 </script>
 
-<div
-	style:display="grid"
-	style:grid-template-columns="1fr 1fr"
-	style:column-gap="1em"
+<fieldset
+	style:display=flex
+	style:flex-direction=column
+	style:gap=0.25em
 >
-	{#each renderDebugKeys as option}
+	<legend>Debug</legend>
+	{#each debugKeys as option}
 		<label>
 			<input type="checkbox" bind:checked={$renderOptions.debug[option]}>
 			{option}
 		</label>
 	{/each}
-</div>
+</fieldset>
