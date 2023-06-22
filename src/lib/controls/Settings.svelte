@@ -9,6 +9,15 @@
 
 	$: placeable = [Boid, Attractor];
 	$: gridSize = { x: 5, y: 5 };
+
+	const spawnGrid = () => {
+		simulation.spawnGrid((x, y) => {
+			return new $options.entities.selected({
+				x, y,
+				...$options.entities[$options.entities.selected.className as keyof typeof $options.entities]
+			});
+		}, gridSize.x, gridSize.y);
+	};
 </script>
 
 <h2>Settings</h2>
@@ -36,13 +45,7 @@
 					Rows: <input type="number" bind:value={gridSize.y} min=1 max=15 size=2 />
 				</label>
 			</div>
-			<button on:click={() => {
-				simulation.spawnGrid((x, y) => {
-					return new $options.entities.selected({
-						x, y, ...$options.entities[$options.entities.selected.className]
-					});
-				}, gridSize.x, gridSize.y);
-			}}>
+			<button on:click={spawnGrid}>
 				🔢️ Spawn Grid
 			</button>
 		</fieldset>
@@ -65,7 +68,7 @@
 			</select>
 		</label>
 	</div>
-	{#if $options.renderer.component}
+	{#if $options.renderer.controls}
 		<div class="group">
 			<h3><i>{$options.renderer.name}</i> Renderer</h3>
 			<svelte:component this={$options.renderer.controls} />

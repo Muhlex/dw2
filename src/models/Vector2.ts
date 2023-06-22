@@ -27,6 +27,12 @@ export default class Vector2 {
 		return new Vector2(this.x, this.y);
 	}
 
+	set(vector: Vector2) {
+		this.x = vector.x;
+		this.y = vector.y;
+		return this;
+	}
+
 	add(vector: Vector2) {
 		this.x += vector.x;
 		this.y += vector.y;
