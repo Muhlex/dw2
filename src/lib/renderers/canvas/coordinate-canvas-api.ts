@@ -1,11 +1,11 @@
-import Vector2 from "./models/Vector2";
+import Vector2 from "../../../models/Vector2";
 
 class CoordinateCanvas {
-	protected canvas: HTMLCanvasElement;
+	protected canvas;
 	private coordinates = new Vector2();
 	private conversionScale = new Vector2();
 
-	constructor(options: { canvas: HTMLCanvasElement, width: number, height: number, coordinates: Vector2 }) {
+	constructor(options: { canvas: HTMLCanvasElement | OffscreenCanvas, width: number, height: number, coordinates: Vector2 }) {
 		const { canvas, width, height, coordinates } = options;
 		this.canvas = canvas;
 		this.updateCanvasResolution(width, height);
@@ -38,9 +38,9 @@ class CoordinateCanvas {
 }
 
 export default class CoordinateCanvas2D extends CoordinateCanvas {
-	ctx;
+	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
-	constructor(options: { canvas: HTMLCanvasElement, coordinates?: Vector2 }) {
+	constructor(options: { canvas: HTMLCanvasElement | OffscreenCanvas, coordinates?: Vector2 }) {
 		const { canvas, coordinates } = options;
 		super({
 			canvas,

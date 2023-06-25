@@ -5,11 +5,7 @@ import type Entity from "./models/sim/entities/Entity";
 import Boid from "./models/sim/entities/Boid";
 import Attractor from "./models/sim/entities/Attractor";
 
-import HTMLRenderer from "./lib/renderers/html/Renderer.svelte";
-import HTMLControls from "./lib/renderers/html/Controls.svelte";
-import CanvasRenderer from "./lib/renderers/canvas/Renderer.svelte";
-import LEDRenderer from "./lib/renderers/led/Renderer.svelte";
-import LEDControls from "./lib/renderers/led/Controls.svelte";
+import rendererGroups from "./renderers";
 
 export const defaults = {
 	getBoid: () => pick(new Boid(),
@@ -22,24 +18,11 @@ export const defaults = {
 	getAttractor: () => pick(new Attractor(), "radius", "strength")
 };
 
-export const renderers = [{
-	name: "HTML",
-	component: HTMLRenderer,
-	controls: HTMLControls,
-}, {
-	name: "Canvas",
-	component: CanvasRenderer,
-}, {
-	name: "LEDs",
-	component: LEDRenderer,
-	controls: LEDControls,
-}];
-
 export const getOptions = () => {
 	const selected: typeof Entity = Boid;
 	return {
 		targetTps: 60,
-		renderer: renderers[0],
+		renderer: rendererGroups[0].renderers[0],
 		showControls: true,
 		entities: {
 			selected,

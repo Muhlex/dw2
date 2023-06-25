@@ -1,19 +1,28 @@
+<script lang="ts" context="module">
+	export type SimulationUpdateEvent = { simulation: Simulation, api: CoordinateCanvas2D };
+</script>
+
 <script lang="ts">
-  import { onMount } from "svelte";
-	import CoordinateCanvas2D from "../../../canvas-api";
+	import { onMount, createEventDispatcher } from "svelte";
+	import CoordinateCanvas2D from "./coordinate-canvas-api";
 
 	import Vector2 from "../../../models/Vector2";
 	import type Simulation from "../../../models/sim/Simulation";
-	import Boid from "../../../models/sim/entities/Boid";
 
 	export let simulation: Simulation;
 
+	const dispatch = createEventDispatcher<{
+		"simulation-update": SimulationUpdateEvent
+	}>();
+
 	let canvasEl: HTMLCanvasElement;
+	let offscreenCanvas: OffscreenCanvas;
 	let canvasAPI: CoordinateCanvas2D | undefined;
 	const canvasResolution = { x: 0, y: 0 };
 
 	onMount(() => {
-		canvasAPI = new CoordinateCanvas2D({ canvas: canvasEl });
+		offscreenCanvas = canvasEl.transferControlToOffscreen();
+		canvasAPI = new CoordinateCanvas2D({ canvas: offscreenCanvas });
 	});
 
 	$: canvasAPI?.updateCanvasResolution(canvasResolution.x, canvasResolution.y);
@@ -21,16 +30,7 @@
 	$: canvasAPI?.updateCoordinates(new Vector2(worldX, worldY));
 
 	$: if (canvasAPI) {
-		const api = canvasAPI, ctx = canvasAPI.ctx;
-		const boids = $simulation.entities.get(Boid);
-
-		api.clear();
-		for (const boid of boids) {
-			const { position } = boid.interpolated.values;
-			ctx.fillStyle = boid.color;
-			api.circle(position.x, position.y, boid.size / 2);
-			ctx.fill();
-		}
+		dispatch("simulation-update", { simulation: $simulation, api: canvasAPI });
 	}
 </script>
 

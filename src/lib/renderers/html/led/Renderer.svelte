@@ -8,9 +8,9 @@
 </script>
 
 <script lang="ts">
-	import Vector2 from "../../../models/Vector2";
-	import type Simulation from "../../../models/sim/Simulation";
-	import Boid from "../../../models/sim/entities/Boid";
+	import Vector2 from "../../../../models/Vector2";
+	import type Simulation from "../../../../models/sim/Simulation";
+	import Boid from "../../../../models/sim/entities/Boid";
 
 	export let simulation: Simulation;
 

@@ -7,7 +7,7 @@
 	import SimulationComponent from "./lib/Simulation.svelte";
 	import Settings from "./lib/controls/Settings.svelte";
 	import Parameters from "./lib/controls/Parameters.svelte";
-  import Presets from "./lib/controls/Presets.svelte";
+	import Presets from "./lib/controls/Presets.svelte";
 
 	const simulation = new Simulation();
 	simulation.spawnGrid((x, y) => {

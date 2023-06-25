@@ -1,5 +1,6 @@
 <script lang="ts">
-	import options, { renderers } from "../../options";
+	import options from "../../options";
+	import rendererGroups from "../../renderers";
 
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
@@ -62,13 +63,17 @@
 		<label>
 			Renderer
 			<select bind:value={$options.renderer}>
-				{#each renderers as renderer}
-					<option value={renderer}>{renderer.name}</option>
+				{#each rendererGroups as { groupName, renderers }}
+					<optgroup label={groupName}>
+						{#each renderers as renderer}
+							<option value={renderer}>{renderer.name}</option>
+						{/each}
+					</optgroup>
 				{/each}
 			</select>
 		</label>
 	</div>
-	{#if $options.renderer.controls}
+	{#if "controls" in $options.renderer}
 		<div class="group">
 			<h3><i>{$options.renderer.name}</i> Renderer</h3>
 			<svelte:component this={$options.renderer.controls} />

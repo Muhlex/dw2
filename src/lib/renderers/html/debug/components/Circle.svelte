@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Vector2 from "../../../../models/Vector2";
+	import Vector2 from "../../../../../models/Vector2";
 
 	export let radius: number;
 	export let position = new Vector2(0, 0);

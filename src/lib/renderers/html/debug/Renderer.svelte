@@ -15,11 +15,11 @@
 </script>
 
 <script lang="ts">
-	import Vector2 from "../../../models/Vector2";
+	import Vector2 from "../../../../models/Vector2";
 
-	import type Simulation from "../../../models/sim/Simulation";
-	import Boid from "../../../models/sim/entities/Boid";
-	import Attractor from "../../../models/sim/entities/Attractor";
+	import type Simulation from "../../../../models/sim/Simulation";
+	import Boid from "../../../../models/sim/entities/Boid";
+	import Attractor from "../../../../models/sim/entities/Attractor";
 
 	import BoidComponent from "./components/Boid.svelte";
 	import AttractorComponent from "./components/Attractor.svelte";

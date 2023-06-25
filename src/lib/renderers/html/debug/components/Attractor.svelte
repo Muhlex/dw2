@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type Attractor from "../../../../models/sim/entities/Attractor";
+	import type Attractor from "../../../../../models/sim/entities/Attractor";
 
 	export let attractor: Attractor;
 
