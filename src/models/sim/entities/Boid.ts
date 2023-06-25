@@ -39,8 +39,12 @@ export default class Boid extends Entity {
 		this.color = `hsl(${Math.random()}turn 100% 70%)`;
 		this.applyOptions(options);
 
-		this.lastTick = this.cloneState();
+		this.lastTick = Boid.prototype.getLastTickCache.call(this);
 		this.interpolated = { values: Boid.prototype.interpolate.call(this, 0, 1), available: false };
+	}
+
+	protected getLastTickCache() {
+		return { position: this.position.copy(), velocity: this.velocity.copy() };
 	}
 
 	protected interpolate(t: number, u: number) {

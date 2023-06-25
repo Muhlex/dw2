@@ -7,14 +7,14 @@ export default class Entity {
 	protected simulation: Simulation | undefined;
 	position: Vector2;
 
-	protected lastTick: { position: Vector2 };
+	protected lastTick;
 	interpolated;
 
 	constructor(options: { position?: Vector2, x?: number, y?: number, simulation?: Simulation } = {}) {
 		this.position = options.position || new Vector2(options.x, options.y);
 		this.simulation = options.simulation;
 
-		this.lastTick = this.cloneState();
+		this.lastTick = Entity.prototype.getLastTickCache.call(this);
 		this.interpolated = { values: Entity.prototype.interpolate.call(this, 0, 1), available: false };
 	}
 
@@ -40,9 +40,8 @@ export default class Entity {
 		}
 	}
 
-	protected cloneState() {
-		const { interpolated, lastTick, ...shallowClone } = this;
-		return structuredClone(shallowClone);
+	protected getLastTickCache() {
+		return {};
 	}
 
 	protected interpolate(t: number, u: number) {
@@ -50,7 +49,7 @@ export default class Entity {
 	}
 
 	tick() {
-		this.lastTick = this.cloneState();
+		this.lastTick = this.getLastTickCache();
 		this.interpolated.available = true;
 		this.onTick();
 	}
