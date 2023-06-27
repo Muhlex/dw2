@@ -3,7 +3,7 @@ import Attractor from "./Attractor";
 import Vector2 from "../../Vector2";
 
 export default class Boid extends Entity {
-	static readonly className = "Boid";
+	static override readonly className = "Boid";
 
 	velocity: Vector2;
 
@@ -30,8 +30,8 @@ export default class Boid extends Entity {
 		attractionDelta: new Vector2(),
 	};
 
-	protected lastTick;
-	interpolated;
+	protected override lastTick;
+	override interpolated;
 
 	constructor(options: ConstructorParameters<typeof Entity>[0] & Partial<Boid> = {}) {
 		super(options);
@@ -43,18 +43,18 @@ export default class Boid extends Entity {
 		this.interpolated = { values: Boid.prototype.interpolate.call(this, 0, 1), available: false };
 	}
 
-	protected getLastTickCache() {
+	protected override getLastTickCache() {
 		return { position: this.position.copy(), velocity: this.velocity.copy() };
 	}
 
-	protected interpolate(t: number, u: number) {
+	protected override interpolate(t: number, u: number) {
 		return {
 			position: this.position.copy().lerp(this.lastTick.position, u),
 			velocity: this.velocity.copy().lerp(this.lastTick.velocity, u),
-		}
+		};
 	}
 
-	protected onTick() {
+	protected override onTick() {
 		if (!this.simulation) return;
 
 		// Other Boids

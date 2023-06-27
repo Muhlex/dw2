@@ -1,4 +1,4 @@
-export default class ClassInstancesMap<Class extends new (...args: any[]) => any> {
+export default class ClassInstancesMap<Class extends new (...args: never[]) => InstanceType<Class>> {
 	#map = new Map<Class, Set<InstanceType<Class>>>();
 
 	get<Subclass extends Class>(constructor: Subclass): Set<InstanceType<Subclass>> {
@@ -11,16 +11,16 @@ export default class ClassInstancesMap<Class extends new (...args: any[]) => any
 	}
 
 	has(instance: InstanceType<Class>) {
-		return this.get(instance.constructor).has(instance);
+		return this.get((instance as { constructor: Class }).constructor).has(instance);
 	}
 
 	add(instance: InstanceType<Class>) {
-		this.get(instance.constructor).add(instance);
+		this.get((instance as { constructor: Class }).constructor).add(instance);
 		return this;
 	}
 
 	delete(instance: InstanceType<Class>) {
-		return this.get(instance.constructor).delete(instance);
+		return this.get((instance as { constructor: Class }).constructor).delete(instance);
 	}
 
 	clear() {
@@ -44,8 +44,8 @@ export default class ClassInstancesMap<Class extends new (...args: any[]) => any
 						yield [constructor, instance] satisfies [Class, InstanceType<Class>];
 					}
 				}
-			}
-		}
+			},
+		};
 	}
 
 	values(): Iterable<InstanceType<Class>> {
@@ -55,8 +55,8 @@ export default class ClassInstancesMap<Class extends new (...args: any[]) => any
 				for (const set of self.#map.values()) {
 					yield* set.values();
 				}
-			}
-		}
+			},
+		};
 	}
 
 	keys(): Iterable<Class> {
@@ -64,8 +64,8 @@ export default class ClassInstancesMap<Class extends new (...args: any[]) => any
 		return {
 			*[Symbol.iterator]() {
 				yield* self.#map.keys();
-			}
-		}
+			},
+		};
 	}
 
 	[Symbol.iterator]() {

@@ -15,7 +15,7 @@
 		simulation.spawnGrid((x, y) => {
 			return new $options.entities.selected({
 				x, y,
-				...$options.entities[$options.entities.selected.className as keyof typeof $options.entities]
+				...$options.entities[$options.entities.selected.className as keyof typeof $options.entities],
 			});
 		}, gridSize.x, gridSize.y);
 	};

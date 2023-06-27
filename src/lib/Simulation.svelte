@@ -17,7 +17,7 @@
 		frame: { smooth: 10, time: 0, timeLazy: 0 },
 		lazyInterval: 500,
 		lazyIntervalID: -1,
-	}
+	};
 	const maxTicksPerFrame = 8;
 	$: targetTickInterval = 1000 / $options.targetTps;
 	$: maxTickDelay = targetTickInterval * maxTicksPerFrame;
@@ -42,7 +42,7 @@
 		}
 
 		simulation.frame(delta / targetTickInterval);
-	}
+	};
 	onMount(() => {
 		animationFrameRequestID = window.requestAnimationFrame(onAnimationFrame);
 		measure.lazyIntervalID = window.setInterval(() => {

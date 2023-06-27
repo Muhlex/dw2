@@ -96,7 +96,7 @@
 			</label>
 		</fieldset>
 		<button on:click={() => {
-			simulation.entities.get(Boid).forEach(boid => boid.applyOptions($options.entities.Boid))
+			simulation.entities.get(Boid).forEach(boid => boid.applyOptions($options.entities.Boid));
 		}}>
 			✔️ Apply to All
 		</button>
@@ -126,7 +126,7 @@
 			</label>
 		</fieldset>
 		<button on:click={() => {
-			simulation.entities.get(Attractor).forEach(attractor => attractor.applyOptions($options.entities.Attractor))
+			simulation.entities.get(Attractor).forEach(attractor => attractor.applyOptions($options.entities.Attractor));
 		}}>
 			✔️ Apply to All
 		</button>

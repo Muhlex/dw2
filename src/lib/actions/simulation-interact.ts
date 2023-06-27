@@ -1,18 +1,18 @@
-import { get } from 'svelte/store';
-import type { ActionReturn } from 'svelte/action';
+import { get } from "svelte/store";
+import type { ActionReturn } from "svelte/action";
 
-import options from '../../options';
+import options from "../../options";
 
-import Vector2 from '../../models/Vector2';
-import Simulation from '../../models/sim/Simulation';
-import Entity from '../../models/sim/entities/Entity';
-import Boid from '../../models/sim/entities/Boid';
-import Attractor from '../../models/sim/entities/Attractor';
+import Vector2 from "../../models/Vector2";
+import Simulation from "../../models/sim/Simulation";
+import Entity from "../../models/sim/entities/Entity";
+import Boid from "../../models/sim/entities/Boid";
+import Attractor from "../../models/sim/entities/Attractor";
 
 let $options = get(options);
 options.subscribe(value => $options = value);
 
-enum MouseButton { Primary, Middle, Secondary };
+enum MouseButton { Primary, Middle, Secondary }
 type KeyboardActions = Record<KeyboardEvent["key"], () => void>;
 
 export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
@@ -42,7 +42,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 				},
 			},
 			up: {},
-		}
+		},
 	};
 
 	const getTargetConsumesKey = (target: EventTarget) => {
@@ -75,7 +75,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 			offset.x / width * simulation.world.size.x,
 			offset.y / height * simulation.world.size.y,
 		);
-	}
+	};
 
 	const grab = {
 		targetClass: Entity,
@@ -93,7 +93,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		},
 		tick(x: number, y: number) {
 			if (!this.active) return;
-			const spawned = simulation.entities.get(this.targetClass)
+			const spawned = simulation.entities.get(this.targetClass);
 			for (const target of this.targets) {
 				if (!spawned.has(target)) {
 					this.targets.delete(target);
@@ -106,7 +106,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		updateCursor() {
 			if (this.active) node.style.setProperty("cursor", "move");
 			else node.style.removeProperty("cursor");
-		}
+		},
 	};
 
 	const onPointerdown = ({ clientX, clientY, button }: PointerEvent) => {
@@ -126,29 +126,33 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 		};
 
 		switch (button) {
-			case MouseButton.Primary:
+			case MouseButton.Primary: {
 				const constructorOptions = {
 					x: coords.x, y: coords.y,
-					...$options.entities[$options.entities.selected.className as keyof typeof $options.entities]
+					...$options.entities[$options.entities.selected.className as keyof typeof $options.entities],
 				};
 				for (let i = 0; i < amount; i++) {
 					simulation.spawn(new $options.entities.selected(constructorOptions));
 				}
 
 				break;
+			}
 
-			case MouseButton.Secondary:
+			case MouseButton.Secondary: {
 				for (const { entity } of getNearest(amount)) {
 					simulation.kill(entity);
 				}
 
 				break;
+			}
 
-			case MouseButton.Middle:
+			case MouseButton.Middle: {
 				grab.active ? grab.set([]) : grab.set(getNearest(amount).map(t => t.entity));
 				grab.tick(clientX, clientY);
 
 				break;
+
+			}
 		}
 	};
 
@@ -158,7 +162,7 @@ export default (node: HTMLElement, simulation: Simulation): ActionReturn => {
 
 	const onContextmenu = (event: MouseEvent) => {
 		event.preventDefault();
-	}
+	};
 
 	node.addEventListener("pointerdown", onPointerdown);
 	node.addEventListener("pointermove", onPointermove);

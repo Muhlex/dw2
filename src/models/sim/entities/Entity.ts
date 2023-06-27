@@ -44,7 +44,7 @@ export default class Entity {
 		return {};
 	}
 
-	protected interpolate(t: number, u: number) {
+	protected interpolate(_t: number, _u: number) {
 		return {};
 	}
 
@@ -54,6 +54,7 @@ export default class Entity {
 		this.onTick();
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	protected onTick() {}
 
 	frame(t: number, u: number) {
@@ -61,5 +62,6 @@ export default class Entity {
 		this.onFrame();
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	protected onFrame() {}
 }

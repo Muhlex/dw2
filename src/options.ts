@@ -13,9 +13,9 @@ export const defaults = {
 		"minSpeed", "maxSpeed",
 		"avoidRadius", "avoidFactor",
 		"visionRadius", "centeringFactor", "matchingFactor",
-		"edgeMargin", "edgeTurnFactor"
+		"edgeMargin", "edgeTurnFactor",
 	),
-	getAttractor: () => pick(new Attractor(), "radius", "strength")
+	getAttractor: () => pick(new Attractor(), "radius", "strength"),
 };
 
 export const getOptions = () => {
@@ -28,8 +28,8 @@ export const getOptions = () => {
 			selected,
 			Boid: defaults.getBoid(),
 			Attractor: defaults.getAttractor(),
-		}
-	}
+		},
+	};
 };
 
 export default writable(getOptions());

@@ -97,5 +97,5 @@ export default {
 				position: sim.world.size.copy().multiply(0.5),
 			}));
 		},
-	}
-}
+	},
+};
