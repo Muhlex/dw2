@@ -4,11 +4,11 @@ import ClassInstancesMap from "../ClassInstancesMap";
 import World from "./World";
 import Entity from "./entities/Entity";
 
-
 export default class Simulation extends Store {
 	world = new World(1000, 1000);
-
 	entities = new ClassInstancesMap<typeof Entity>();
+
+	renderCallbacks = new Set<(simulation: Simulation) => void>();
 
 	spawn(entity: Entity) {
 		entity.setSimulation(this);
@@ -54,5 +54,9 @@ export default class Simulation extends Store {
 			entity.frame(interpFrac, reverseInterpFrac);
 		}
 		this.notify();
+
+		for (const callback of this.renderCallbacks) {
+			callback(this);
+		}
 	}
 }

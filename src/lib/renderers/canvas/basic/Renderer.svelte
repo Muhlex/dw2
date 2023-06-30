@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type Simulation from "../../../../models/sim/Simulation";
-	import RendererBase, { type SimulationUpdateEvent } from "../RendererBase.svelte";
+	import CanvasRenderer, { type SimulationFrameEvent } from "../CanvasRenderer.svelte";
 
 	import Boid from "../../../../models/sim/entities/Boid";
 
 	export let simulation: Simulation;
 
-	const onSimulationUpdate = ({ detail: { simulation, api } }: CustomEvent<SimulationUpdateEvent>) => {
+	const render = ({ detail: { simulation, api } }: CustomEvent<SimulationFrameEvent>) => {
 		const ctx = api.ctx;
 		const boids = simulation.entities.get(Boid);
 
@@ -21,4 +21,4 @@
 
 </script>
 
-<RendererBase {simulation} on:simulation-update={onSimulationUpdate} />
+<CanvasRenderer {simulation} on:frame={render} />

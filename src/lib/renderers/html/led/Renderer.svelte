@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
 	import { writable } from "svelte/store";
+	import { renderOptions as renderOptionsCanvas } from "../../canvas/led/Renderer.svelte";
 
 	export const renderOptions = writable({
-		grid: { cols: 12, rows: 25 },
-		boids: { scale: 2, intensity: 0.8 },
+		diffuse: { vertical: 1, horizontal: 1 },
 	});
 </script>
 
@@ -14,12 +14,15 @@
 
 	export let simulation: Simulation;
 
-	$: ({ grid, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptions);
+	$: ({ grid, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptionsCanvas);
+	$: ({ diffuse } = $renderOptions);
+	$: ({ x: worldX, y: worldY } = $simulation.world.size);
+	$: colGap = worldX / grid.cols;
+	$: rowGap = worldY / grid.rows;
 
 	$: matrix = (() => {
 		const result: number[] = Array(grid.cols * grid.rows).fill(0);
 		const boids = $simulation.entities.get(Boid);
-		const colGap = $simulation.world.size.x / grid.cols, rowGap = $simulation.world.size.y / grid.rows;
 
 		let i = 0;
 		for (let y = rowGap / 2; y < $simulation.world.size.y; y += rowGap) {
@@ -39,26 +42,43 @@
 </script>
 
 <div
-	class="grid"
+	class="grids"
 	style:--grid-cols={grid.cols}
 	style:--grid-rows={grid.rows}
+	style:--diffuse-horizontal={diffuse.horizontal}
+	style:--diffuse-vertical={diffuse.vertical}
 >
-	{#each matrix as brightness}
-		<div class="cell">
-			<div class="led" style:--brightness={brightness} />
-		</div>
-	{/each}
+	<div class="grid">
+		{#each matrix as brightness}
+			<div class="cell">
+				<div class="led" style:--brightness={brightness} />
+			</div>
+		{/each}
+	</div>
+	<div class="grid blur">
+		{#each matrix as brightness}
+			<div class="cell">
+				<div class="led" style:--brightness={brightness} />
+			</div>
+		{/each}
+	</div>
 </div>
 
 <style>
+	.grids {
+		position: absolute;
+		inset: 0;
+	}
+
 	.grid {
 		position: absolute;
 		inset: 0;
 
 		display: grid;
 		grid-template-columns: repeat(var(--grid-cols), 1fr);
-		column-gap: calc(100% / var(--grid-cols) / 2);
-		row-gap: calc(100% / var(--grid-rows) / 2);
+	}
+	.grid:not(.blur) {
+		filter: blur(calc(max(var(--diffuse-horizontal), var(--diffuse-vertical)) * 1px - 1px));
 	}
 
 	.cell {
@@ -69,23 +89,20 @@
 		position: absolute;
 		margin: auto;
 		inset: 0;
-		max-width: 100%;
-		max-height: 100%;
+		max-width: 80%;
+		max-height: 80%;
 		aspect-ratio: 1;
+		border-radius: 50%;
 
 		--hsl: 40, 50%, calc(20% + 75% * var(--brightness));
 		background-color: hsl(var(--hsl), calc(var(--brightness) * 0.8 + 0.2));
-		border-radius: 50%;
 	}
-	.led::before {
-		content: "";
-		display: block;
-
-		position: absolute;
-		inset: -16px;
-		border-radius: 50%;
+	.blur .led {
 		background-color: hsl(var(--hsl), var(--brightness));
-		z-index: -1;
-		filter: blur(16px);
+		transform: scale(
+			calc(1 + var(--diffuse-horizontal)),
+			calc(1 + var(--diffuse-vertical))
+		);
+		filter: blur(12px);
 	}
 </style>
