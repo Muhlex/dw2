@@ -22,7 +22,7 @@ export const getOptions = () => {
 	const selected: typeof Entity = Boid;
 	return {
 		targetTps: 60,
-		renderer: rendererGroups[0].renderers[0],
+		renderers: [rendererGroups[0].renderers[0]],
 		showControls: true,
 		entities: {
 			selected,

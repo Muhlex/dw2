@@ -68,7 +68,9 @@
 		<span>TPS {(1000 / (measure.tick.timeLazy || Infinity)).toFixed(0)}</span>
 		<span>Entities {$simulation.entities.size}</span>
 	</div>
-	<svelte:component this={$options.renderer.component} {simulation} />
+	{#each $options.renderers as renderer}
+		<svelte:component this={renderer.component} {simulation} />
+	{/each}
 </div>
 
 <style>

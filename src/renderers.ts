@@ -6,8 +6,22 @@ import CanvasBasicRenderer from "./lib/renderers/canvas/basic/Renderer.svelte";
 import CanvasLEDRenderer from "./lib/renderers/canvas/led/Renderer.svelte";
 import CanvasLEDControls from "./lib/renderers/canvas/led/Controls.svelte";
 
-export default [{
-	groupName: "HTML",
+import type { SvelteComponentTyped } from "svelte";
+import type Simulation from "./models/sim/Simulation";
+
+type Renderer = {
+	name: string;
+	component: typeof SvelteComponentTyped<{ simulation: Simulation }>
+	controls?: typeof SvelteComponentTyped<Record<string, never>>;
+};
+
+type RendererGroup = {
+	name: string;
+	renderers: Renderer[];
+}
+
+const groups: RendererGroup[] = [{
+	name: "HTML",
 	renderers: [{
 		name: "Debug",
 		component: HTMLDebugRenderer,
@@ -18,7 +32,7 @@ export default [{
 		controls: HTMLLEDControls,
 	}],
 }, {
-	groupName: "Canvas",
+	name: "Canvas",
 	renderers: [{
 		name: "Basic",
 		component: CanvasBasicRenderer,
@@ -28,3 +42,14 @@ export default [{
 		controls: CanvasLEDControls,
 	}],
 }];
+export default groups;
+
+export const getRendererGroup = (() => {
+	const rendererToGroup = new Map<Renderer, RendererGroup>();
+	for (const group of groups) {
+		for (const renderer of group.renderers) {
+			rendererToGroup.set(renderer, group);
+		}
+	}
+	return (renderer: Renderer) => rendererToGroup.get(renderer);
+})();
