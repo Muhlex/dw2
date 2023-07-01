@@ -9,14 +9,19 @@
 
 <script lang="ts">
 	import type Simulation from "../../../../models/sim/Simulation";
-	import CanvasRenderer, { type SimulationFrameEvent } from "../CanvasRenderer.svelte";
+	import CanvasRenderer, { type MountEvent, type SimulationFrameEvent } from "../CanvasRenderer.svelte";
+	import Canvas2DRenderer from "../Canvas2DRenderer.svelte";
 
-	import Vector2 from "../../../../models/Vector2";
+	import RenderWorker from "./worker?worker";
+	import { MessageType, type SetupMessage, type RenderMessage } from "./worker";
+
 	import Boid from "../../../../models/sim/entities/Boid";
 
 	export let simulation: Simulation;
 
-	let blurRenderer: CanvasRenderer;
+	const renderWorker = new RenderWorker();
+
+	let blurRenderer: Canvas2DRenderer;
 
 	$: ({ grid, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptions);
 	$: ({ x: worldX, y: worldY } = $simulation.world.size);
@@ -24,38 +29,30 @@
 	$: rowGap = worldY / grid.rows;
 	$: ledRadius = Math.min(colGap - worldX / grid.cols * 0.2, rowGap - worldY / grid.rows * 0.2) / 2;
 
-	const render = ({ detail: { simulation, api } }: CustomEvent<SimulationFrameEvent>) => {
-		api.clear();
-		const boids = simulation.entities.get(Boid);
+	const setup = ({ detail: { offscreenCanvas } }: CustomEvent<MountEvent>) => {
+		const message = { type: MessageType.Setup, offscreenCanvas } satisfies SetupMessage;
+		renderWorker.postMessage(message, [offscreenCanvas]);
+	};
 
-		for (let y = rowGap / 2; y < simulation.world.size.y; y += rowGap) {
-			for (let x = colGap / 2; x < simulation.world.size.x; x += colGap) {
-				let brightness = 0;
-				for (const boid of boids) {
-					const maxDistance = boid.size * boidScale;
-					const distanceSq = boid.interpolated.values.position.distanceSq(new Vector2(x, y));
-					if (distanceSq > maxDistance ** 2) continue;
-					const distance = Math.sqrt(distanceSq);
-					brightness += (1 - distance / maxDistance) * boidIntensity;
-				}
-				const hsl = `40, 50%, ${(0.2 + 0.75 * brightness) * 100}%`;
-				api.ctx.fillStyle = `hsl(${hsl}, ${brightness * 0.8 + 0.2})`;
-				api.circle(x, y, ledRadius);
-				api.ctx.fill();
-			}
-		}
+	const render = ({ detail: { offscreenCanvas, simulation } }: CustomEvent<SimulationFrameEvent>) => {
+		const boids = simulation.entities.get(Boid);
+		// const message = {
+		// 	type: MessageType.Render,
+		// 	boids, worldX, worldY, colGap, rowGap, boidScale, boidIntensity, ledRadius,
+		// } satisfies RenderMessage;
+		// renderWorker.postMessage(message);
 
 		const apiBlur = blurRenderer.canvas.api;
 		if (!apiBlur) return;
 		apiBlur.clear();
-		apiBlur.ctx.drawImage(api.ctx.canvas, 0, 0);
+		apiBlur.ctx.drawImage(offscreenCanvas, 0, 0);
 	};
 </script>
 
 <div class="blur">
-	<CanvasRenderer {simulation} bind:this={blurRenderer} />
+	<Canvas2DRenderer {simulation} bind:this={blurRenderer} />
 </div>
-<CanvasRenderer {simulation} on:frame={render} />
+<CanvasRenderer {simulation} on:mount={setup} on:frame={render} />
 
 <style>
 	.blur {

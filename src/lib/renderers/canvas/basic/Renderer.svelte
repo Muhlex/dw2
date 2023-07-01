@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type Simulation from "../../../../models/sim/Simulation";
-	import CanvasRenderer, { type SimulationFrameEvent } from "../CanvasRenderer.svelte";
+	import CanvasRenderer, { type SimulationFrameEvent } from "../Canvas2DRenderer.svelte";
 
 	import Boid from "../../../../models/sim/entities/Boid";
 
