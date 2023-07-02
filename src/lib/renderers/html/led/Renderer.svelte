@@ -14,19 +14,19 @@
 
 	export let simulation: Simulation;
 
-	$: ({ grid, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptionsCanvas);
+	$: ({ grid: { cols, rows }, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptionsCanvas);
 	$: ({ diffuse } = $renderOptions);
 	$: ({ x: worldX, y: worldY } = $simulation.world.size);
-	$: colGap = worldX / grid.cols;
-	$: rowGap = worldY / grid.rows;
+	$: colGap = worldX / cols;
+	$: rowGap = worldY / rows;
 
 	$: matrix = (() => {
-		const result: number[] = Array(grid.cols * grid.rows).fill(0);
+		const result: number[] = Array(cols * rows).fill(0);
 		const boids = $simulation.entities.get(Boid);
 
 		let i = 0;
-		for (let y = rowGap / 2; y < $simulation.world.size.y; y += rowGap) {
-			for (let x = colGap / 2; x < $simulation.world.size.x; x += colGap) {
+		for (let y = rowGap / 2; y < worldY; y += rowGap) {
+			for (let x = colGap / 2; x < worldX; x += colGap) {
 				for (const boid of boids) {
 					const maxDistance = boid.size * boidScale;
 					const distanceSq = boid.interpolated.values.position.distanceSq(new Vector2(x, y));
@@ -43,8 +43,7 @@
 
 <div
 	class="grids"
-	style:--grid-cols={grid.cols}
-	style:--grid-rows={grid.rows}
+	style:--cols={cols}
 	style:--diffuse-horizontal={diffuse.horizontal}
 	style:--diffuse-vertical={diffuse.vertical}
 >
@@ -75,7 +74,7 @@
 		inset: 0;
 
 		display: grid;
-		grid-template-columns: repeat(var(--grid-cols), 1fr);
+		grid-template-columns: repeat(var(--cols), 1fr);
 	}
 	.grid:not(.blur) {
 		filter: blur(calc(max(var(--diffuse-horizontal), var(--diffuse-vertical)) * 1px - 1px));
