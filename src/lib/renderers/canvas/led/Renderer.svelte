@@ -18,18 +18,18 @@
 
 	let blurRenderer: CanvasRenderer;
 
-	$: ({ grid, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptions);
+	$: ({ grid: { cols, rows }, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptions);
 	$: ({ x: worldX, y: worldY } = $simulation.world.size);
-	$: colGap = worldX / grid.cols;
-	$: rowGap = worldY / grid.rows;
-	$: ledRadius = Math.min(colGap - worldX / grid.cols * 0.2, rowGap - worldY / grid.rows * 0.2) / 2;
+	$: colGap = worldX / cols;
+	$: rowGap = worldY / rows;
+	$: ledRadius = Math.min(colGap - worldX / cols * 0.2, rowGap - worldY / rows * 0.2) / 2;
 
 	const render = ({ detail: { simulation, api } }: CustomEvent<SimulationFrameEvent>) => {
 		api.clear();
 		const boids = simulation.entities.get(Boid);
 
-		for (let y = rowGap / 2; y < simulation.world.size.y; y += rowGap) {
-			for (let x = colGap / 2; x < simulation.world.size.x; x += colGap) {
+		for (let y = rowGap / 2; y < worldY; y += rowGap) {
+			for (let x = colGap / 2; x < worldX; x += colGap) {
 				let brightness = 0;
 				for (const boid of boids) {
 					const maxDistance = boid.size * boidScale;

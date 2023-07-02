@@ -5,6 +5,8 @@ import HTMLLEDControls from "./lib/renderers/html/led/Controls.svelte";
 import CanvasBasicRenderer from "./lib/renderers/canvas/basic/Renderer.svelte";
 import CanvasLEDRenderer from "./lib/renderers/canvas/led/Renderer.svelte";
 import CanvasLEDControls from "./lib/renderers/canvas/led/Controls.svelte";
+import HeadlessLEDRenderer from "./lib/renderers/headless/led/Renderer.svelte";
+import HeadlessLEDControls from "./lib/renderers/headless/led/Controls.svelte";
 
 import type { SvelteComponentTyped } from "svelte";
 import type Simulation from "./models/sim/Simulation";
@@ -40,6 +42,13 @@ const groups: RendererGroup[] = [{
 		name: "LEDs",
 		component: CanvasLEDRenderer,
 		controls: CanvasLEDControls,
+	}],
+}, {
+	name: "Headless",
+	renderers: [{
+		name: "LEDs",
+		component: HeadlessLEDRenderer,
+		controls: HeadlessLEDControls,
 	}],
 }];
 export default groups;
