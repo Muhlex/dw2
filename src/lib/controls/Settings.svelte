@@ -1,6 +1,7 @@
 <script lang="ts">
 	import options from "../../options";
 	import rendererGroups, { getRendererGroup } from "../../renderers";
+	import { websockets, connect } from "../../websockets";
 
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
@@ -10,6 +11,9 @@
 
 	$: placeable = [Boid, Attractor];
 	$: gridSize = { x: 5, y: 5 };
+
+	let websocketConnectURL = "ws://";
+	$: websocketsArray = [...$websockets];
 
 	const spawnGrid = () => {
 		simulation.spawnGrid((x, y) => {
@@ -73,14 +77,40 @@
 			</select>
 		</label>
 	</div>
-	{#each $options.renderers as renderer}
-		{#if "controls" in renderer}
-			<div class="group">
-				<h3>[{getRendererGroup(renderer)?.name}] {renderer.name}</h3>
-				<svelte:component this={renderer.controls} />
-			</div>
-		{/if}
-	{/each}
+	<div class="group">
+		<h3>Rendering</h3>
+		<div class="group" style:gap=2em>
+			{#each $options.renderers as renderer}
+				<div class="group">
+					<h4>[{getRendererGroup(renderer)?.name}] {renderer.name}</h4>
+					{#if "controls" in renderer}
+						<svelte:component this={renderer.controls} />
+					{:else}
+						<i>No options available</i>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	</div>
+	<div class="group">
+		<h3>WebSockets</h3>
+		<fieldset>
+			<legend>Connections</legend>
+			<label class="row" style:align-items=center>
+				URL
+				<input bind:value={websocketConnectURL}/>
+				<button aria-label="connect" on:click={() => connect(websocketConnectURL)}>🔌</button>
+			</label>
+			<ul>
+				{#each websocketsArray as socket}
+					<li>
+						{socket.url}
+						<button aria-label="close" on:click={() => socket.close()}>❌</button>
+					</li>
+				{/each}
+			</ul>
+		</fieldset>
+	</div>
 </div>
 
 <style>
@@ -123,5 +153,10 @@
 	}
 	label.row input:not([type="checkbox"]) {
 		flex-grow: 1;
+	}
+
+	ul {
+		margin: 0;
+		padding-left: 1em;
 	}
 </style>

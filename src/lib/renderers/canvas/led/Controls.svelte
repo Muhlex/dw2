@@ -6,10 +6,10 @@
 	<legend>Matrix ({$renderOptions.grid.cols * $renderOptions.grid.rows} LEDs)</legend>
 	<div class="row">
 		<label class="row">
-			Cols: <input type="number" bind:value={$renderOptions.grid.cols} min=1 max=50 size=2 />
+			Cols <input type="number" bind:value={$renderOptions.grid.cols} min=1 max=50 size=2 />
 		</label>
 		<label class="row">
-			Rows: <input type="number" bind:value={$renderOptions.grid.rows} min=1 max=50 size=2 />
+			Rows <input type="number" bind:value={$renderOptions.grid.rows} min=1 max=50 size=2 />
 		</label>
 	</div>
 </fieldset>
@@ -17,11 +17,11 @@
 	<legend>Boids</legend>
 	<div class="row">
 		<label class="row">
-			Scale:
+			Scale
 			<input type="number" bind:value={$renderOptions.boids.scale} min=1 max=10 step=0.2 size=3 />
 		</label>
 		<label class="row">
-			Intensity:
+			Intensity
 			<input type="number" bind:value={$renderOptions.boids.intensity} min=0 max=2 step=0.05 size=4 />
 		</label>
 	</div>

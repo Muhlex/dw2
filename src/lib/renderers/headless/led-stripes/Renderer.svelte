@@ -1,40 +1,20 @@
 <script lang="ts" context="module">
-	import { get, writable } from "svelte/store";
+	import { writable } from "svelte/store";
 	import { renderOptions as renderOptionsCanvas } from "../../canvas/led/Renderer.svelte";
 
 	export const renderOptions = writable({
-		websocket: { url: "ws://localhost:8765", rate: 20 },
+		websocket: { rate: 5 },
 		debug: { enable: false },
 	});
-
-	const websocket = writable<WebSocket | undefined>(undefined);
-
-	export const websocketConnect = () => {
-		try {
-			const ws = new WebSocket(get(renderOptions).websocket.url);
-			websocket.set(ws);
-			ws.addEventListener("open", () => {
-				console.info("WebSocket connection opened.");
-			});
-			ws.addEventListener("close", () => {
-				console.info("WebSocket connection closed.");
-			});
-			ws.addEventListener("message", event => {
-				console.info("WebSocket message received:", event.data);
-			});
-			ws.addEventListener("error", () => {
-				console.error("A WebSocket error occured.");
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	};
 </script>
 
 <script lang="ts">
+	import { onDestroy } from "svelte";
 	// import { ColorTranslator } from "colortranslator";
 
 	import { chunk } from "../../../../util";
+	import { send } from "../../../../websockets";
+
 	import FrameRenderer, { type SimulationEvent } from "../../FrameRenderer.svelte";
 
 	import type Simulation from "../../../../models/sim/Simulation";
@@ -103,7 +83,7 @@
 				// velocityAngleTotal += boid.interpolated.values.velocity.angle;
 				// boidCount++;
 			}
-			matrix[componentsIndex + COMPONENT.W] = brightness * 255;
+			matrix[componentsIndex + COMPONENT.W] = brightness * 100;
 			// const rgb = new ColorTranslator({
 			// 	h: velocityAngleTotal / boidCount * 180 / Math.PI, s: 100, l: 50,
 			// }).RGBObject;
@@ -113,15 +93,16 @@
 		}
 	};
 
-	let wsIntervalId = -1;
-	$: if ($websocket?.readyState === WebSocket.OPEN) {
-		const ws = $websocket;
-		clearInterval(wsIntervalId);
-		wsIntervalId = setInterval(() => {
-			console.log("sending matrix update");
-			ws.send(matrix);
-		}, 1000 / $renderOptions.websocket.rate);
-	}
+	let wsRateIntervalId = -1;
+	const setWsInterval = (rate: number) => {
+		clearInterval(wsRateIntervalId);
+		const delay = 1000 / rate;
+		if (delay === Infinity) return;
+
+		wsRateIntervalId = setInterval(() => send(matrix), delay);
+	};
+	$: setWsInterval($renderOptions.websocket.rate);
+	onDestroy(() => clearInterval(wsRateIntervalId));
 </script>
 
 <FrameRenderer {simulation} on:frame={render} />
