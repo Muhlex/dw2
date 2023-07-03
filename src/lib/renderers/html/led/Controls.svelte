@@ -9,11 +9,11 @@
 	<legend>Diffusion</legend>
 	<div class="row">
 		<label class="row">
-			Horizontal:
+			Horizontal
 			<input type="number" bind:value={$renderOptions.diffuse.horizontal} min=0 max=8 step=0.1 size=2 />
 		</label>
 		<label class="row">
-			Vertical:
+			Vertical
 			<input type="number" bind:value={$renderOptions.diffuse.vertical} min=0 max=8 step=0.1 size=2 />
 		</label>
 	</div>
