@@ -12,7 +12,7 @@ export default class Vector2 {
 	}
 
 	get angle() {
-		return Math.atan2(this.y, this.x);
+		return Math.atan2(-this.y, -this.x) + Math.PI;
 	}
 
 	get lengthSq() {

@@ -42,6 +42,12 @@ const tsRules = {
 	"@typescript-eslint/no-this-alias": "off",
 };
 
+const svelteRules = {
+	...svelte.configs.recommended.rules,
+	...tsRules,
+	"no-inner-declarations": "off",
+};
+
 export default [
 	js.configs.recommended,
 	{
@@ -77,9 +83,6 @@ export default [
 				...tsParserOptions,
 			},
 		},
-		rules: {
-			...svelte.configs.recommended.rules,
-			...tsRules,
-		},
+		rules: svelteRules,
 	},
 ];

@@ -9,11 +9,32 @@
 	style:flex-direction=column
 	style:gap=0.25em
 >
-	<legend>Debug</legend>
+	<legend>Enable Views</legend>
 	{#each debugKeys as option}
-		<label>
+		<label class="row">
 			<input type="checkbox" bind:checked={$renderOptions.debug[option]}>
 			{option}
 		</label>
 	{/each}
 </fieldset>
+
+<style>
+	.row {
+		display: flex;
+		gap: 1em;
+	}
+
+	label {
+		display: flex;
+		flex-direction: column;
+	}
+	label.row {
+		flex-grow: 1;
+
+		flex-direction: row;
+		gap: 0.25em;
+	}
+	label.row input:not([type="checkbox"]) {
+		flex-grow: 1;
+	}
+</style>
