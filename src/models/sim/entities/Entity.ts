@@ -53,7 +53,6 @@ export default class Entity {
 		this.interpolated.available = true;
 		this.onTick();
 	}
-
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	protected onTick() {}
 
@@ -61,7 +60,18 @@ export default class Entity {
 		this.interpolated.values = this.interpolate(t, u);
 		this.onFrame();
 	}
-
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	protected onFrame() {}
+
+	spawn() {
+		this.onSpawn();
+	}
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	protected onSpawn() {}
+
+	kill() {
+		this.onKill();
+	}
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	protected onKill() {}
 }

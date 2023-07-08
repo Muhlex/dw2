@@ -1,5 +1,6 @@
 import Entity from "./Entity";
 import Attractor from "./Attractor";
+import AttractorLine from "./AttractorLine";
 import Vector2 from "../../Vector2";
 
 export default class Boid extends Entity {
@@ -109,7 +110,11 @@ export default class Boid extends Entity {
 
 		// Attractors
 		this.debug.attractionDelta.multiply(0);
-		for (const attractor of this.simulation.entities.get(Attractor)) {
+		const attractors = [
+			...this.simulation.entities.get(Attractor),
+			...this.simulation.entities.get(AttractorLine),
+		];
+		for (const attractor of attractors) {
 			this.debug.attractionDelta.add(attractor.attract(this));
 		}
 

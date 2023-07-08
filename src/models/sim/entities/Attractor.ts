@@ -3,7 +3,7 @@ import Vector2 from "../../Vector2";
 import Entity from "./Entity";
 
 export default class Attractor extends Entity {
-	static readonly className = "Attractor";
+	static override readonly className: string = "Attractor";
 
 	radius = { start: 50, end: 200 };
 	strength = { start: 0.75, end: 0 };

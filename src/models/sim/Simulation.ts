@@ -13,6 +13,7 @@ export default class Simulation extends Store {
 	spawn(entity: Entity) {
 		entity.setSimulation(this);
 		this.entities.add(entity);
+		entity.spawn();
 
 		this.notify();
 	}
@@ -27,17 +28,25 @@ export default class Simulation extends Store {
 	}
 
 	kill(entity: Entity) {
+		entity.kill();
 		this.entities.delete(entity);
 		this.notify();
 	}
 
 	killAll() {
+		for (const entity of this.entities.values()) {
+			entity.kill();
+		}
 		this.entities.clear();
 		this.notify();
 	}
 
 	killAllOfClass(constructor: typeof Entity) {
-		this.entities.get(constructor).clear();
+		const entities = this.entities.get(constructor);
+		for (const entity of entities.values()) {
+			entity.kill();
+		}
+		entities.clear();
 		this.notify();
 	}
 

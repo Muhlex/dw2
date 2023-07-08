@@ -6,13 +6,14 @@
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
 	import Attractor from "../../models/sim/entities/Attractor";
+	import AttractorLine from "../../models/sim/entities/AttractorLine";
 
 	export let simulation: Simulation;
 
-	$: placeable = [Boid, Attractor];
+	$: placeable = [Boid, Attractor, AttractorLine];
 	$: gridSize = { x: 5, y: 5 };
 
-	let websocketConnectURL = "ws://";
+	let websocketConnectURL = "ws://192.168";
 	$: websocketsArray = [...$websockets];
 
 	const spawnGrid = () => {
@@ -98,8 +99,10 @@
 			<legend>Connections</legend>
 			<label class="row" style:align-items=center>
 				URL
-				<input bind:value={websocketConnectURL}/>
-				<button aria-label="connect" on:click={() => connect(websocketConnectURL)}>🔌</button>
+				<form style:display=contents on:submit|preventDefault={() => connect(websocketConnectURL)}>
+					<input bind:value={websocketConnectURL} size=1 />
+					<button aria-label="connect" type="submit">🔌</button>
+				</form>
 			</label>
 			<ul>
 				{#each websocketsArray as socket}

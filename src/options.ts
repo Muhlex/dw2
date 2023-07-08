@@ -20,6 +20,7 @@ export const defaults = {
 
 export const getOptions = () => {
 	const selected: typeof Entity = Boid;
+	const attractorOptions = defaults.getAttractor();
 	return {
 		targetTps: 60,
 		renderers: [rendererGroups[0].renderers[0]],
@@ -27,7 +28,8 @@ export const getOptions = () => {
 		entities: {
 			selected,
 			Boid: defaults.getBoid(),
-			Attractor: defaults.getAttractor(),
+			Attractor: attractorOptions,
+			AttractorLine: attractorOptions,
 		},
 	};
 };

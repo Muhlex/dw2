@@ -6,6 +6,7 @@
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
 	import Attractor from "../../models/sim/entities/Attractor";
+	import AttractorLine from "../../models/sim/entities/AttractorLine";
 
 	export let simulation: Simulation;
 </script>
@@ -126,7 +127,8 @@
 			</label>
 		</fieldset>
 		<button on:click={() => {
-			simulation.entities.get(Attractor).forEach(attractor => attractor.applyOptions($options.entities.Attractor));
+			[...simulation.entities.get(Attractor), ...simulation.entities.get(AttractorLine)]
+				.forEach(attractor => attractor.applyOptions($options.entities.Attractor));
 		}}>
 			✔️ Apply to All
 		</button>

@@ -3,17 +3,16 @@
 	import { renderOptions as renderOptionsCanvas } from "../../canvas/led/Renderer.svelte";
 
 	export const renderOptions = writable({
-		websocket: { rate: 5 },
+		websocket: { rate: 60 },
 		debug: { enable: false },
 	});
 </script>
 
 <script lang="ts">
 	import { onDestroy } from "svelte";
-	// import { ColorTranslator } from "colortranslator";
 
 	import { chunk } from "../../../../util";
-	import { send } from "../../../../websockets";
+	import { websockets, send, sendAll } from "../../../../websockets";
 
 	import FrameRenderer, { type SimulationEvent } from "../../FrameRenderer.svelte";
 
@@ -33,7 +32,7 @@
 	const COMPONENT = { R: 0, G: 1, B: 2, W: 3 };
 	const COMPONENT_COUNT = Object.keys(COMPONENT).length;
 
-	function* leds() {
+	function* generateLeds() {
 		/**
 		 * This is our LED stripe setup:
 		 *
@@ -46,7 +45,7 @@
 		let i = 0;
 		for (let col = cols - 1; col >= 0; col--) {
 			const x = (col + 0.5) * colGap;
-			const isOddCol = (cols - col) & 1; // when couting from the right
+			const isOddCol = (cols - col) & 1; // when counting from the right
 			for (let row = isOddCol ? rows - 1 : 0; row >= 0 && row < rows; isOddCol ? row-- : row++) {
 				const y = (row + 0.5) * rowGap;
 				yield { i, col, row, x, y };
@@ -61,48 +60,59 @@
 	$: {
 		void cols, rows;
 		ledCells = [];
-		for (const { col, row } of leds()) {
+		for (const { col, row } of generateLeds()) {
 			ledCells.push({ col, row });
 		}
 	}
 
 	const render = ({ detail: { simulation } }: CustomEvent<SimulationEvent>) => {
 		const boids = simulation.entities.get(Boid);
+		const leds: { brightness: number }[] = [];
 
-		for (const led of leds()) {
-			const componentsIndex = led.i * COMPONENT_COUNT;
+		for (const led of generateLeds()) {
 			let brightness = 0;
-			// let velocityAngleTotal = 0;
-			// let boidCount = 0;
 			for (const boid of boids) {
 				const maxDistance = boid.size * boidScale;
 				const distanceSq = boid.interpolated.values.position.distanceSq(new Vector2(led.x, led.y));
 				if (distanceSq > maxDistance ** 2) continue;
 				const distance = Math.sqrt(distanceSq);
 				brightness += (1 - distance / maxDistance) * boidIntensity;
-				// velocityAngleTotal += boid.interpolated.values.velocity.angle;
-				// boidCount++;
 			}
-			matrix[componentsIndex + COMPONENT.W] = brightness * 100;
-			// const rgb = new ColorTranslator({
-			// 	h: velocityAngleTotal / boidCount * 180 / Math.PI, s: 100, l: 50,
-			// }).RGBObject;
-			// matrix[componentsIndex + COMPONENT.R] = rgb.r * brightness / 2;
-			// matrix[componentsIndex + COMPONENT.G] = rgb.g * brightness / 2;
-			// matrix[componentsIndex + COMPONENT.B] = rgb.b * brightness / 2;
+			leds.push({ brightness: Math.min(brightness, 1) });
+		}
+
+		for (const [i, { brightness }] of leds.entries()) {
+			const ledOffset = i * COMPONENT_COUNT;
+			// Leads to physical brightness perception becoming *more linear*:
+			const brightnessExp = brightness ** 2;
+			matrix[ledOffset + COMPONENT.R] = 0;
+			matrix[ledOffset + COMPONENT.G] = Math.ceil(brightnessExp * 255);
+			matrix[ledOffset + COMPONENT.B] = Math.ceil(brightnessExp * 150);
+			matrix[ledOffset + COMPONENT.W] = Math.ceil(brightnessExp * 70);
 		}
 	};
 
 	let wsRateIntervalId = -1;
-	const setWsInterval = (rate: number) => {
+	const updateWsInterval = (rate: number) => {
 		clearInterval(wsRateIntervalId);
+
 		const delay = 1000 / rate;
 		if (delay === Infinity) return;
 
-		wsRateIntervalId = setInterval(() => send(matrix), delay);
+		wsRateIntervalId = setInterval(() => {
+			const sliceSize = matrix.length / $websockets.length;
+			for (let i = 0; i < $websockets.length; i++) {
+				const offset = i * sliceSize;
+				send(i, matrix.slice(offset, offset + sliceSize));
+			}
+		}, delay);
 	};
-	$: setWsInterval($renderOptions.websocket.rate);
-	onDestroy(() => clearInterval(wsRateIntervalId));
+	$: updateWsInterval($renderOptions.websocket.rate);
+	onDestroy(() => {
+		clearInterval(wsRateIntervalId);
+		matrix.fill(0);
+		sendAll(matrix);
+	});
 </script>
 
 <FrameRenderer {simulation} on:frame={render} />

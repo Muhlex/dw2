@@ -59,7 +59,8 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
       - name: Build with Vite
         run: |
-          ${{ steps.detect-package-manager.outputs.manager }} run build -- --base ${{ steps.pages.outputs.base_path }}
+          base="${{ steps.pages.outputs.base_path }}"
+          ${{ steps.detect-package-manager.outputs.manager }} run build -- ${base:+--base $base}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

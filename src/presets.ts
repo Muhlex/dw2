@@ -1,14 +1,25 @@
 import { get } from "svelte/store";
 import options, { defaults } from "./options";
 
+import Vector2 from "./models/Vector2";
 import type Simulation from "./models/sim/Simulation";
 import Boid from "./models/sim/entities/Boid";
 import Attractor from "./models/sim/entities/Attractor";
+import { renderOptions } from "./lib/renderers/canvas/led/Renderer.svelte";
 
 let $options = get(options);
 options.subscribe(value => $options = value);
 
 export default {
+	"Physical Prototype": {
+		"Initialize": (sim: Simulation) => {
+			sim.world.size = new Vector2(2007, 500);
+			renderOptions.update(options => ({
+				...options,
+				grid: { cols: 20, rows: 30 },
+			}));
+		},
+	},
 	"Smooth Follow": {
 		"Initialize": (sim: Simulation) => {
 			options.update(options => ({

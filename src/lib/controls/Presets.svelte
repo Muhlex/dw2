@@ -34,6 +34,10 @@
 		gap: 4em;
 	}
 
+	.group {
+		display: flex;
+	}
+
 	fieldset {
 		display: grid;
 		grid-auto-flow: column;

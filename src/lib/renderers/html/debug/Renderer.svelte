@@ -20,9 +20,12 @@
 	import type Simulation from "../../../../models/sim/Simulation";
 	import Boid from "../../../../models/sim/entities/Boid";
 	import Attractor from "../../../../models/sim/entities/Attractor";
+	import AttractorLine from "../../../../models/sim/entities/AttractorLine";
+	import DistanceSensor from "../../../../models/sim/entities/DistanceSensor";
 
 	import BoidComponent from "./components/Boid.svelte";
 	import AttractorComponent from "./components/Attractor.svelte";
+	import AttractorLineComponent from "./components/AttractorLine.svelte";
 	import Arrow from "./components/Arrow.svelte";
 	import Circle from "./components/Circle.svelte";
 	import Rect from "./components/Rect.svelte";
@@ -31,8 +34,20 @@
 
 	$: boids = [...$simulation.entities.get(Boid)];
 	$: attractors = [...$simulation.entities.get(Attractor)];
+	$: attractorLines = [...$simulation.entities.get(AttractorLine)];
+	$: sensors = [...$simulation.entities.get(DistanceSensor)];
 </script>
 
+{#each sensors as sensor}
+	<Rect
+		position={new Vector2(sensor.position.x - 25, 0)}
+		size={new Vector2(50, sensor.distance)}
+		color="royalblue" fill
+	/>
+{/each}
+{#each attractorLines as attractor (attractor)}
+	<AttractorLineComponent {attractor} />
+{/each}
 {#each attractors as attractor (attractor)}
 	<AttractorComponent {attractor} />
 {/each}

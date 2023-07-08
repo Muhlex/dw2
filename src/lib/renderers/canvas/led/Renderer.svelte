@@ -2,8 +2,8 @@
 	import { writable } from "svelte/store";
 
 	export const renderOptions = writable({
-		grid: { cols: 12, rows: 25 },
-		boids: { scale: 2, intensity: 0.8 },
+		grid: { cols: 10, rows: 30 },
+		boids: { scale: 3, intensity: 0.5 },
 	});
 </script>
 
