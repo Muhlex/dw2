@@ -3,7 +3,7 @@
 	import { renderOptions as renderOptionsCanvas } from "../../canvas/led/Renderer.svelte";
 
 	export const renderOptions = writable({
-		websocket: { rate: 60 },
+		websocket: { rate: 1 },
 		debug: { enable: false },
 	});
 </script>
@@ -14,11 +14,11 @@
 	import { chunk } from "../../../../util";
 	import { websockets, send, sendAll } from "../../../../websockets";
 
-	import FrameRenderer, { type SimulationEvent } from "../../FrameRenderer.svelte";
-
 	import type Simulation from "../../../../models/sim/Simulation";
 	import Boid from "../../../../models/sim/entities/Boid";
-	import Vector2 from "../../../../models/Vector2";
+	import RenderWorker from "./worker.ts?worker";
+
+	import { COMPONENT_COUNT } from "./shared";
 
 	$: ({ grid: { cols, rows }, boids: { scale: boidScale, intensity: boidIntensity } } = $renderOptionsCanvas);
 	$: ({ x: worldX, y: worldY } = $simulation.world.size);
@@ -28,9 +28,6 @@
 	$: ({ debug: { enable: enableDebug } } = $renderOptions);
 
 	export let simulation: Simulation;
-
-	const COMPONENT = { R: 0, G: 1, B: 2, W: 3 };
-	const COMPONENT_COUNT = Object.keys(COMPONENT).length;
 
 	function* generateLeds() {
 		/**
@@ -65,31 +62,21 @@
 		}
 	}
 
-	const render = ({ detail: { simulation } }: CustomEvent<SimulationEvent>) => {
+	const worker = new RenderWorker();
+
+	worker.onmessage = ({ data }: MessageEvent<typeof matrix>) => {
+		matrix = data;
+	};
+
+	const render = () => {
 		const boids = simulation.entities.get(Boid);
-		const leds: { brightness: number }[] = [];
-
-		for (const led of generateLeds()) {
-			let brightness = 0;
-			for (const boid of boids) {
-				const maxDistance = boid.size * boidScale;
-				const distanceSq = boid.interpolated.values.position.distanceSq(new Vector2(led.x, led.y));
-				if (distanceSq > maxDistance ** 2) continue;
-				const distance = Math.sqrt(distanceSq);
-				brightness += (1 - distance / maxDistance) * boidIntensity;
-			}
-			leds.push({ brightness: Math.min(brightness, 1) });
-		}
-
-		for (const [i, { brightness }] of leds.entries()) {
-			const ledOffset = i * COMPONENT_COUNT;
-			// Leads to physical brightness perception becoming *more linear*:
-			const brightnessExp = brightness ** 2;
-			matrix[ledOffset + COMPONENT.R] = 0;
-			matrix[ledOffset + COMPONENT.G] = Math.ceil(brightnessExp * 255);
-			matrix[ledOffset + COMPONENT.B] = Math.ceil(brightnessExp * 150);
-			matrix[ledOffset + COMPONENT.W] = Math.ceil(brightnessExp * 70);
-		}
+		const emptyMatrix = new Uint8ClampedArray(cols * rows * COMPONENT_COUNT);
+		worker.postMessage({
+			options: { boidScale, boidIntensity },
+			boids: [...boids].map(boid => ({ position: boid.interpolated.values.position, size: boid.size })),
+			ledsMeta: [...generateLeds()],
+			matrix: emptyMatrix,
+		}, [emptyMatrix.buffer]);
 	};
 
 	let wsRateIntervalId = -1;
@@ -100,6 +87,8 @@
 		if (delay === Infinity) return;
 
 		wsRateIntervalId = setInterval(() => {
+			render();
+
 			const sliceSize = matrix.length / $websockets.length;
 			for (let i = 0; i < $websockets.length; i++) {
 				const offset = i * sliceSize;
@@ -115,7 +104,6 @@
 	});
 </script>
 
-<FrameRenderer {simulation} on:frame={render} />
 {#if enableDebug && matrixPerLed}
 	<div class="grid" style:--cols={cols}>
 		{#each matrixPerLed as led, ledIndex}

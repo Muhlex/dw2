@@ -8,7 +8,7 @@
 <fieldset>
 	<legend>WebSockets</legend>
 	<label class="row">
-		Rate <input type="number" bind:value={$renderOptions.websocket.rate} min=0 max=30 size=1 />
+		Rate <input type="number" bind:value={$renderOptions.websocket.rate} min=0 max=200 size=1 />
 	</label>
 </fieldset>
 <fieldset>
