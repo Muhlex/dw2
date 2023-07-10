@@ -33,14 +33,19 @@ const create = (url: string) => new Promise<WebSocket>((resolve, reject) => {
 	};
 });
 
+const removeSocketIndex = (index: number) => {
+	if (!sockets[index]) throw new Error(`${index} is not a valid WebSocket index.`);
+	sockets.splice(index, 1);
+	notify();
+};
+
 export const connect = async (url: string) => {
 	try {
 		const socket = await create(url);
 
 		const onEnd = () => {
-			sockets.splice(sockets.indexOf(socket), 1);
-			notify();
 			const socketIndex = sockets.indexOf(socket);
+			removeSocketIndex(socketIndex);
 			for (const callback of callbacks.end) {
 				callback({ socketIndex, socket });
 			}
@@ -66,13 +71,23 @@ export const connect = async (url: string) => {
 	}
 };
 
-export const send = (index: number, data: Parameters<WebSocket["send"]>[0]) => {
+export const send = (socket: WebSocket, data: Parameters<WebSocket["send"]>[0]) => {
+	socket.send(data);
+};
+export const sendIndex = (index: number, data: Parameters<WebSocket["send"]>[0]) => {
 	sockets[index].send(data);
 };
 export const sendAll = (data: Parameters<WebSocket["send"]>[0]) => {
 	for (const socket of sockets) {
-		socket.send(data);
+		send(socket, data);
 	}
+};
+export const close = (socket: WebSocket) => {
+	closeIndex(sockets.indexOf(socket));
+};
+export const closeIndex = (index: number) => {
+	sockets[index].close();
+	removeSocketIndex(index);
 };
 
 export const listenOpen = (callback: OpenCallback) => {

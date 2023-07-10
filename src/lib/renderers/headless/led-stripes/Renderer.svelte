@@ -12,7 +12,7 @@
 	import { onDestroy } from "svelte";
 
 	import { chunk } from "../../../../util";
-	import { websockets, send, sendAll } from "../../../../websockets";
+	import { websockets, sendIndex, sendAll } from "../../../../websockets";
 
 	import type Simulation from "../../../../models/sim/Simulation";
 	import Boid from "../../../../models/sim/entities/Boid";
@@ -95,7 +95,7 @@
 			const sliceSize = matrix.length / $websockets.length;
 			for (let i = 0; i < $websockets.length; i++) {
 				const offset = i * sliceSize;
-				send(i, matrix.slice(offset, offset + sliceSize));
+				sendIndex(i, matrix.slice(offset, offset + sliceSize));
 			}
 		}, delay);
 	};

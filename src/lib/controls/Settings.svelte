@@ -1,7 +1,7 @@
 <script lang="ts">
 	import options from "../../options";
 	import rendererGroups, { getRendererGroup } from "../../renderers";
-	import { websockets, connect } from "../../websockets";
+	import { websockets, connect, close } from "../../websockets";
 
 	import type Simulation from "../../models/sim/Simulation";
 	import Boid from "../../models/sim/entities/Boid";
@@ -115,7 +115,7 @@
 				{#each websocketsArray as socket}
 					<li>
 						{socket.url}
-						<button aria-label="close" on:click={() => socket.close()}>❌</button>
+						<button aria-label="close" on:click={() => close(socket)}>❌</button>
 					</li>
 				{/each}
 			</ul>
