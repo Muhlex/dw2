@@ -96,6 +96,13 @@
 				<input type="range" bind:value={$options.entities.Boid.edgeTurnFactor} min=0 max=1 step=0.01 />
 			</label>
 		</fieldset>
+		<fieldset>
+			<legend>Physical Prototype</legend>
+			<label class="row">
+				<input type="checkbox" bind:checked={$options.entities.Boid.maxSpeedFromAttraction}>
+				maxSpeedFromAttraction
+			</label>
+		</fieldset>
 		<button on:click={() => {
 			simulation.entities.get(Boid).forEach(boid => boid.applyOptions($options.entities.Boid));
 		}}>

@@ -19,19 +19,20 @@ const prototypeCommon = (sim: Simulation) => {
 			Boid: {
 				...defaults.getBoid(),
 				color: "whitesmoke",
-				minSpeed: 1.5,
+				minSpeed: 0.5,
 				avoidRadius: 72,
 				visionRadius: 120,
 				edgeMargin: 50,
 				edgeTurnFactor: 0.5,
 				centeringFactor: 0.0001,
 				matchingFactor: 0.015,
+				maxSpeedFromAttraction: true,
 			},
 		},
 	}));
 
 	sim.killAllOfClass(Boid);
-	sim.spawnGrid((x, y) => new Boid({ x, y, ...$options.entities.Boid }), 30, 4);
+	sim.spawnGrid((x, y) => new Boid({ x, y, ...$options.entities.Boid }), 30, 2);
 };
 
 export default {
@@ -41,6 +42,7 @@ export default {
 			renderOptions.update(options => ({
 				...options,
 				grid: { cols: 10, rows: 30 },
+				boids: { intensity: 0.5, scale: 2.8 },
 			}));
 			prototypeCommon(sim);
 		},

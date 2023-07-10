@@ -14,6 +14,7 @@ export const defaults = {
 		"avoidRadius", "avoidFactor",
 		"visionRadius", "centeringFactor", "matchingFactor",
 		"edgeMargin", "edgeTurnFactor",
+		"maxSpeedFromAttraction",
 	),
 	getAttractor: () => pick(new Attractor(), "radius", "strength"),
 };

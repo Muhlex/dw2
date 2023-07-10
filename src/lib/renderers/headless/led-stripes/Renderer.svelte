@@ -73,7 +73,10 @@
 		const emptyMatrix = new Uint8ClampedArray(cols * rows * COMPONENT_COUNT);
 		worker.postMessage({
 			options: { boidScale, boidIntensity },
-			boids: [...boids].map(boid => ({ position: boid.interpolated.values.position, size: boid.size })),
+			boids: [...boids].map(boid => ({
+				position: boid.interpolated.values.position,
+				size: boid.size,
+			})),
 			ledsMeta: [...generateLeds()],
 			matrix: emptyMatrix,
 		}, [emptyMatrix.buffer]);

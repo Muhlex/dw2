@@ -8,6 +8,8 @@ export default class DistanceSensor extends Entity {
 
 	private _distance = 0;
 	maxDistance = Infinity;
+	attractFactor = 0;
+
 	private attractor: AttractorLine;
 
 	constructor(options: ConstructorParameters<typeof Entity>[0] & Partial<DistanceSensor> = {}) {
@@ -22,18 +24,20 @@ export default class DistanceSensor extends Entity {
 		return this._distance;
 	}
 	set distance(value) {
-		if (value === 0) value = this.maxDistance;
+		if (value === 0) value = this.maxDistance + 50;
 		this._distance = value;
 
 		this.onDistanceChange(value);
 	}
 
 	onDistanceChange(distance: number) {
-		const attractFactor = distance <= this.maxDistance
+		if (!this.simulation) return;
+
+		this.attractFactor = distance <= this.maxDistance
 			? clamp(remap(distance, 10, this.maxDistance, 1, 0.5), 0.75, 1)
 			: 0;
-		this.attractor.strength = { start: 0.1 * attractFactor, end: 3 * attractFactor };
-		this.attractor.radius = { start: 50, end: (this.simulation?.world.size.x || 0) };
+		this.attractor.strength = { start: 0.2 * this.attractFactor, end: 4 * this.attractFactor };
+		this.attractor.radius = { start: 0, end: (this.simulation?.world.size.x || 0) };
 	}
 
 	override onSpawn() {

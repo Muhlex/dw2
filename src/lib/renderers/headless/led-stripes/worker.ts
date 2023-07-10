@@ -1,27 +1,32 @@
 import Vector2 from "../../../../models/Vector2";
-import Boid from "../../../../models/sim/entities/Boid";
 
 import { COMPONENT, COMPONENT_COUNT } from "./shared";
 
 declare const self: Worker;
 
 self.onmessage = ({ data }: MessageEvent<{
-	options: { boidScale: number, boidIntensity: number },
-	boids: { position: { x: number, y: number }, size: number }[],
+	options: { boidScale: number, boidIntensity: number };
+	boids: {
+		position: { x: number, y: number };
+		// velocity: { x: number, y: number };
+		size: number;
+	}[];
 	ledsMeta: {
 		i: number;
 		col: number;
 		row: number;
 		x: number;
 		y: number;
-	}[],
-	matrix: Uint8ClampedArray,
+	}[];
+	matrix: Uint8ClampedArray;
 }>) => {
 	const { options, boids, ledsMeta, matrix } = data;
 
-	const boidsHydrated = boids.map(boid => {
-		const position = new Vector2(boid.position.x, boid.position.y);
-		return new Boid({ ...boid, position });
+	const boidsHydrated = boids.map(({ position, size }) => {
+		return ({
+			position: new Vector2(position.x, position.y),
+			size,
+		});
 	});
 
 	const leds: { brightness: number }[] = [];
@@ -42,9 +47,6 @@ self.onmessage = ({ data }: MessageEvent<{
 		const ledOffset = i * COMPONENT_COUNT;
 		// Leads to physical brightness perception becoming *more linear*:
 		const brightnessExp = brightness ** 2;
-		// matrix[ledOffset + COMPONENT.R] = 0;
-		// matrix[ledOffset + COMPONENT.G] = Math.ceil(brightnessExp * 255);
-		// matrix[ledOffset + COMPONENT.B] = Math.ceil(brightnessExp * 150);
 		matrix[ledOffset + COMPONENT.W] = Math.ceil(brightnessExp * 255);
 	}
 

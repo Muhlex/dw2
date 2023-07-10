@@ -3,6 +3,8 @@ import Attractor from "./Attractor";
 import AttractorLine from "./AttractorLine";
 import Vector2 from "../../Vector2";
 
+import { remap } from "../../../util";
+
 export default class Boid extends Entity {
 	static override readonly className = "Boid";
 
@@ -24,7 +26,9 @@ export default class Boid extends Entity {
 	edgeMargin = 200;
 	edgeTurnFactor = 0.12;
 
-	debug = {
+	maxSpeedFromAttraction = false;
+
+	meta = {
 		avoidanceDelta: new Vector2(),
 		centeringDelta: new Vector2(),
 		matchingDelta: new Vector2(),
@@ -59,8 +63,8 @@ export default class Boid extends Entity {
 		if (!this.simulation) return;
 
 		// Other Boids
-		this.debug.centeringDelta.multiply(0);
-		this.debug.matchingDelta.multiply(0);
+		this.meta.centeringDelta.multiply(0);
+		this.meta.matchingDelta.multiply(0);
 
 		const avoidanceDelta = new Vector2();
 		const visiblePositionsMean = new Vector2();
@@ -100,22 +104,26 @@ export default class Boid extends Entity {
 				.subtract(this.velocity).multiply(this.matchingFactor);
 			this.velocity.add(centeringDelta).add(matchingDelta);
 
-			this.debug.centeringDelta = centeringDelta;
-			this.debug.matchingDelta = matchingDelta;
+			this.meta.centeringDelta = centeringDelta;
+			this.meta.matchingDelta = matchingDelta;
 		}
 
 		avoidanceDelta.multiply(this.avoidFactor);
 		this.velocity.add(avoidanceDelta);
-		this.debug.avoidanceDelta = avoidanceDelta;
+		this.meta.avoidanceDelta = avoidanceDelta;
 
 		// Attractors
-		this.debug.attractionDelta.multiply(0);
+		this.meta.attractionDelta.multiply(0);
 		const attractors = [
 			...this.simulation.entities.get(Attractor),
 			...this.simulation.entities.get(AttractorLine),
 		];
 		for (const attractor of attractors) {
-			this.debug.attractionDelta.add(attractor.attract(this));
+			this.meta.attractionDelta.add(attractor.attract(this));
+		}
+
+		if (this.maxSpeedFromAttraction) {
+			this.maxSpeed = remap(this.meta.attractionDelta.length, 0, 1, 5, 30);
 		}
 
 		// World

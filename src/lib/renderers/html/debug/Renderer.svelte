@@ -65,28 +65,28 @@
 		<Arrow
 			color="red"
 			position={boid.position}
-			direction={boid.debug.avoidanceDelta.copy().multiply(1000)}
+			direction={boid.meta.avoidanceDelta.copy().multiply(1000)}
 		/>
 	{/if}
 	{#if $renderOptions.debug.centeringDelta}
 		<Arrow
 			color="lime"
 			position={boid.position}
-			direction={boid.debug.centeringDelta.copy().multiply(1000)}
+			direction={boid.meta.centeringDelta.copy().multiply(1000)}
 		/>
 	{/if}
 	{#if $renderOptions.debug.matchingDelta}
 		<Arrow
 			color="yellow"
 			position={boid.position}
-			direction={boid.debug.matchingDelta.copy().multiply(1000)}
+			direction={boid.meta.matchingDelta.copy().multiply(1000)}
 		/>
 	{/if}
 	{#if $renderOptions.debug.attractionDelta}
 		<Arrow
 			color="white"
 			position={boid.position}
-			direction={boid.debug.attractionDelta.copy().multiply(1000)}
+			direction={boid.meta.attractionDelta.copy().multiply(1000)}
 		/>
 	{/if}
 	{#if $renderOptions.debug.avoidRadius}

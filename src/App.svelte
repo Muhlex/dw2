@@ -38,7 +38,7 @@
 	const recalculateSensorPositions = () => {
 		const socketWidth = simulation.world.size.x / $websockets.length;
 		for (const [i, socket] of $websockets.entries()) {
-			const socketOffset = socketWidth * i;
+			const socketOffset = socketWidth * ($websockets.length - 1 - i);
 			const sensors = socketSensors.get(socket);
 			if (!sensors) continue;
 			const sensorGap = socketWidth / sensors.length;
