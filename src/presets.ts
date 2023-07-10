@@ -10,14 +10,47 @@ import { renderOptions } from "./lib/renderers/canvas/led/Renderer.svelte";
 let $options = get(options);
 options.subscribe(value => $options = value);
 
+const prototypeCommon = (sim: Simulation) => {
+	options.update(options => ({
+		...options,
+		targetTps: 20,
+		entities: {
+			...options.entities,
+			Boid: {
+				...defaults.getBoid(),
+				color: "whitesmoke",
+				minSpeed: 1.5,
+				avoidRadius: 72,
+				visionRadius: 120,
+				edgeMargin: 50,
+				edgeTurnFactor: 0.5,
+				centeringFactor: 0.0001,
+				matchingFactor: 0.015,
+			},
+		},
+	}));
+
+	sim.killAllOfClass(Boid);
+	sim.spawnGrid((x, y) => new Boid({ x, y, ...$options.entities.Boid }), 30, 4);
+};
+
 export default {
 	"Physical Prototype": {
-		"Initialize": (sim: Simulation) => {
-			sim.world.size = new Vector2(2007, 500);
+		"Initialize 300": (sim: Simulation) => {
+			sim.world.size = new Vector2(1050, 500);
+			renderOptions.update(options => ({
+				...options,
+				grid: { cols: 10, rows: 30 },
+			}));
+			prototypeCommon(sim);
+		},
+		"Initialize 600": (sim: Simulation) => {
+			sim.world.size = new Vector2(2100, 500);
 			renderOptions.update(options => ({
 				...options,
 				grid: { cols: 20, rows: 30 },
 			}));
+			prototypeCommon(sim);
 		},
 	},
 	"Smooth Follow": {

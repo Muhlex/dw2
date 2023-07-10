@@ -31,6 +31,9 @@ export const getOptions = () => {
 			Attractor: attractorOptions,
 			AttractorLine: attractorOptions,
 		},
+		websockets: {
+			sonarMaxRange: 150,
+		},
 	};
 };
 

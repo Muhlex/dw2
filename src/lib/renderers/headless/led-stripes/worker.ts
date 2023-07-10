@@ -42,10 +42,10 @@ self.onmessage = ({ data }: MessageEvent<{
 		const ledOffset = i * COMPONENT_COUNT;
 		// Leads to physical brightness perception becoming *more linear*:
 		const brightnessExp = brightness ** 2;
-		matrix[ledOffset + COMPONENT.R] = 0;
-		matrix[ledOffset + COMPONENT.G] = Math.ceil(brightnessExp * 255);
-		matrix[ledOffset + COMPONENT.B] = Math.ceil(brightnessExp * 150);
-		matrix[ledOffset + COMPONENT.W] = Math.ceil(brightnessExp * 70);
+		// matrix[ledOffset + COMPONENT.R] = 0;
+		// matrix[ledOffset + COMPONENT.G] = Math.ceil(brightnessExp * 255);
+		// matrix[ledOffset + COMPONENT.B] = Math.ceil(brightnessExp * 150);
+		matrix[ledOffset + COMPONENT.W] = Math.ceil(brightnessExp * 255);
 	}
 
 	self.postMessage(matrix, [matrix.buffer]);

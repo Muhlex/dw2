@@ -7,6 +7,7 @@
 	import Boid from "../../models/sim/entities/Boid";
 	import Attractor from "../../models/sim/entities/Attractor";
 	import AttractorLine from "../../models/sim/entities/AttractorLine";
+	import DistanceSensor from "../../models/sim/entities/DistanceSensor";
 
 	export let simulation: Simulation;
 
@@ -24,6 +25,12 @@
 			});
 		}, gridSize.x, gridSize.y);
 	};
+
+	$: {
+		for (const sensor of simulation.entities.get(DistanceSensor)) {
+			sensor.applyOptions({ maxDistance: $options.websockets.sonarMaxRange });
+		}
+	}
 </script>
 
 <h2>Settings</h2>
@@ -112,6 +119,13 @@
 					</li>
 				{/each}
 			</ul>
+		</fieldset>
+		<fieldset>
+			<legend>Sonar</legend>
+			<label>
+				Max Range: {$options.websockets.sonarMaxRange}
+				<input type="range" bind:value={$options.websockets.sonarMaxRange} min=5 max=300 step=1 />
+			</label>
 		</fieldset>
 	</div>
 </div>

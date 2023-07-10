@@ -3,7 +3,7 @@
 	import { renderOptions as renderOptionsCanvas } from "../../canvas/led/Renderer.svelte";
 
 	export const renderOptions = writable({
-		websocket: { rate: 1 },
+		websocket: { rate: 60 },
 		debug: { enable: false },
 	});
 </script>

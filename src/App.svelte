@@ -81,7 +81,7 @@
 			for (const sensor of sensors) simulation.kill(sensor);
 			sensors.length = 0;
 			for (const distance of distances) {
-				const sensor = new DistanceSensor({ distance });
+				const sensor = new DistanceSensor({ distance, maxDistance: $options.websockets.sonarMaxRange });
 				sensors.push(sensor);
 				simulation.spawn(sensor);
 			}

@@ -41,7 +41,7 @@
 {#each sensors as sensor}
 	<Rect
 		position={new Vector2(sensor.position.x - 25, 0)}
-		size={new Vector2(50, sensor.distance)}
+		size={new Vector2(50, sensor.distance / sensor.maxDistance * $simulation.world.size.y)}
 		color="royalblue" fill
 	/>
 {/each}
