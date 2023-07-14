@@ -26,7 +26,7 @@ export default class Boid extends Entity {
 	edgeMargin = 200;
 	edgeTurnFactor = 0.12;
 
-	maxSpeedFromAttraction = false;
+	prototypeTweaks = false;
 
 	meta = {
 		avoidanceDelta: new Vector2(),
@@ -122,8 +122,10 @@ export default class Boid extends Entity {
 			this.meta.attractionDelta.add(attractor.attract(this));
 		}
 
-		if (this.maxSpeedFromAttraction) {
-			this.maxSpeed = remap(this.meta.attractionDelta.length, 0, 1, 5, 30);
+		if (this.prototypeTweaks) {
+			const attractionLength = this.meta.attractionDelta.length;
+			this.maxSpeed = remap(attractionLength, 0, 1, 5, 30);
+			this.avoidRadius = attractionLength > 0 ? 60 : 108;
 		}
 
 		// World

@@ -99,8 +99,8 @@
 		<fieldset>
 			<legend>Physical Prototype</legend>
 			<label class="row">
-				<input type="checkbox" bind:checked={$options.entities.Boid.maxSpeedFromAttraction}>
-				maxSpeedFromAttraction
+				<input type="checkbox" bind:checked={$options.entities.Boid.prototypeTweaks}>
+				Enable tweaks
 			</label>
 		</fieldset>
 		<button on:click={() => {

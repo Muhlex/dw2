@@ -10,7 +10,9 @@ import { renderOptions } from "./lib/renderers/canvas/led/Renderer.svelte";
 let $options = get(options);
 options.subscribe(value => $options = value);
 
-const prototypeCommon = (sim: Simulation) => {
+const initPrototype = (sim: Simulation, cols: number) => {
+	sim.world.size = new Vector2(105 * cols, 500);
+
 	options.update(options => ({
 		...options,
 		targetTps: 20,
@@ -20,39 +22,34 @@ const prototypeCommon = (sim: Simulation) => {
 				...defaults.getBoid(),
 				color: "whitesmoke",
 				minSpeed: 0.5,
-				avoidRadius: 72,
+				avoidRadius: 108,
 				visionRadius: 120,
 				edgeMargin: 50,
 				edgeTurnFactor: 0.5,
 				centeringFactor: 0.0001,
 				matchingFactor: 0.015,
-				maxSpeedFromAttraction: true,
+				prototypeTweaks: true,
 			},
 		},
 	}));
 
+	renderOptions.update(options => ({
+		...options,
+		grid: { cols, rows: 30 },
+		boids: { intensity: 0.5, scale: 2.8 },
+	}));
+
 	sim.killAllOfClass(Boid);
-	sim.spawnGrid((x, y) => new Boid({ x, y, ...$options.entities.Boid }), 30, 2);
+	sim.spawnGrid((x, y) => new Boid({ x, y, ...$options.entities.Boid }), cols, 3);
 };
 
 export default {
 	"Physical Prototype": {
 		"Initialize 300": (sim: Simulation) => {
-			sim.world.size = new Vector2(1050, 500);
-			renderOptions.update(options => ({
-				...options,
-				grid: { cols: 10, rows: 30 },
-				boids: { intensity: 0.5, scale: 2.8 },
-			}));
-			prototypeCommon(sim);
+			initPrototype(sim, 10);
 		},
 		"Initialize 600": (sim: Simulation) => {
-			sim.world.size = new Vector2(2100, 500);
-			renderOptions.update(options => ({
-				...options,
-				grid: { cols: 20, rows: 30 },
-			}));
-			prototypeCommon(sim);
+			initPrototype(sim, 20);
 		},
 	},
 	"Smooth Follow": {
